@@ -191,6 +191,8 @@
       <div class="section-title">🤖 Claude's Feedback</div>
       <div id="analysis-content"></div>
       <div class="btn-row">
+        <button class="btn btn-primary hidden" id="speak-btn" onclick="speakFeedback()">🔊 Hear Feedback</button>
+        <button class="btn btn-danger hidden" id="stop-speak-btn" onclick="stopSpeaking()">⏹ Stop</button>
         <button class="btn btn-sun" onclick="resetVoice()">🔄 Try Again</button>
       </div>
     </div>
@@ -410,7 +412,7 @@ function nextPassage() { currentPassageIdx = (currentPassageIdx + 1) % PASSAGES.
 function resetTest() { clearInterval(timerInterval); testState = 'idle'; startTime = null; }
 
 // ── Voice Analysis ─────────────────────────────────────────────────────────
-let recognition = null, isRecording = false, liveTranscript = '';
+let recognition = null, isRecording = false, liveTranscript = '', lastAnalysis = null;
 
 function showKeyInput() {
   document.getElementById('api-key-saved-banner').classList.add('hidden');
@@ -524,6 +526,10 @@ async function analyzeReading() {
         <div style="text-align:center;font-size:18px;font-weight:800;color:#1565C0;padding:10px;background:#E3F2FD;border-radius:12px;">${r.fun_encouragement}</div>
       </div>`;
 
+    lastAnalysis = r;
+    document.getElementById('speak-btn').classList.remove('hidden');
+    document.getElementById('stop-speak-btn').classList.add('hidden');
+
     try {
       await api('POST', '/api/history', { userId: USER_ID, passageTitle, accuracy: pct, testType: 'voice' });
     } catch {}
@@ -538,7 +544,8 @@ async function analyzeReading() {
   document.getElementById('analyze-btn').disabled = false;
 }
 function resetVoice() {
-  liveTranscript = ''; isRecording = false;
+  stopSpeaking();
+  liveTranscript = ''; isRecording = false; lastAnalysis = null;
   if (recognition) { try { recognition.stop(); } catch {} }
   document.getElementById('mic-dot').className = 'mic-dot';
   document.getElementById('mic-label').textContent = 'Ready to record';
@@ -547,6 +554,78 @@ function resetVoice() {
   document.getElementById('transcript-box').innerHTML = '<span class="transcript-placeholder">Your words will appear here as you read…</span>';
   document.getElementById('analyze-btn').classList.add('hidden');
   document.getElementById('analysis-card').classList.add('hidden');
+}
+
+// ── Teacher Voice Feedback ─────────────────────────────────────────────────
+function buildTeacherScript(r) {
+  const name = 'friend';
+  const missed = r.missed_or_wrong_words && r.missed_or_wrong_words.length
+    ? `Some words to practice are: ${r.missed_or_wrong_words.slice(0, 5).join(', ')}.`
+    : `You read every word correctly — fantastic!`;
+
+  return [
+    `Hello ${name}! I just listened to your reading, and I have some feedback for you.`,
+    `Your accuracy score is ${r.accuracy_score} out of 100, and your fluency is rated as: ${r.fluency_rating}.`,
+    `You read ${r.words_correct} out of ${r.words_total} words correctly. Great effort!`,
+    `Here is what you did really well. ${r.what_went_well}`,
+    missed,
+    `Here is my tip for next time. ${r.areas_to_practice}`,
+    r.fun_encouragement,
+    `Keep reading every day and you will get better and better. I am so proud of you!`
+  ].join('  ');
+}
+
+function getTeacherVoice() {
+  const voices = speechSynthesis.getVoices();
+  // Prefer a warm female English voice
+  const preferred = ['Samantha', 'Karen', 'Moira', 'Tessa', 'Fiona', 'Victoria'];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  // Fall back to any en-US female voice
+  return voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
+    || voices.find(v => v.lang.startsWith('en'))
+    || null;
+}
+
+function speakFeedback() {
+  if (!lastAnalysis) return;
+  if (!window.speechSynthesis) { alert('Your browser does not support speech. Try Chrome or Safari.'); return; }
+  stopSpeaking();
+
+  const script = buildTeacherScript(lastAnalysis);
+  const utt = new SpeechSynthesisUtterance(script);
+
+  // Teacher-like tone: slightly slower, warm pitch
+  utt.rate = 0.88;
+  utt.pitch = 1.1;
+  utt.volume = 1;
+
+  // Assign voice after voices load (needed on some browsers)
+  const assignVoice = () => {
+    const v = getTeacherVoice();
+    if (v) utt.voice = v;
+  };
+  if (speechSynthesis.getVoices().length) { assignVoice(); }
+  else { speechSynthesis.addEventListener('voiceschanged', assignVoice, { once: true }); }
+
+  utt.onstart = () => {
+    document.getElementById('speak-btn').classList.add('hidden');
+    document.getElementById('stop-speak-btn').classList.remove('hidden');
+  };
+  utt.onend = utt.onerror = () => {
+    document.getElementById('speak-btn').classList.remove('hidden');
+    document.getElementById('stop-speak-btn').classList.add('hidden');
+  };
+
+  speechSynthesis.speak(utt);
+}
+
+function stopSpeaking() {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  document.getElementById('speak-btn') && document.getElementById('speak-btn').classList.remove('hidden');
+  document.getElementById('stop-speak-btn') && document.getElementById('stop-speak-btn').classList.add('hidden');
 }
 
 // ── Flash Trainer ──────────────────────────────────────────────────────────
