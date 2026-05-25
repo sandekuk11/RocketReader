@@ -108,9 +108,76 @@ app.get('/api/keys/:userId', async (req, res) => {
 
 // ── Reading History ────────────────────────────────────────────────────────
 
+// ── Profiles ───────────────────────────────────────────────────────────────
+
+// GET /api/profiles/:userId — list all profiles
+app.get('/api/profiles/:userId', async (req, res) => {
+  const { userId } = req.params;
+  if (!isValidUUID(userId)) return res.status(400).json({ error: 'Invalid userId' });
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ profiles: data || [] });
+});
+
+// POST /api/profiles — create a profile
+app.post('/api/profiles', async (req, res) => {
+  const { userId, name, age, color } = req.body;
+  if (!userId || !isValidUUID(userId)) return res.status(400).json({ error: 'Valid userId required' });
+  if (!name || !name.trim()) return res.status(400).json({ error: 'Name required' });
+  if (!age || age < 4 || age > 18) return res.status(400).json({ error: 'Age must be 4–18' });
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert({ user_id: userId, name: name.trim(), age: parseInt(age), color: color || '#1565C0' })
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json({ profile: data });
+});
+
+// PUT /api/profiles/:profileId — update name / age / color
+app.put('/api/profiles/:profileId', async (req, res) => {
+  const { profileId } = req.params;
+  if (!isValidUUID(profileId)) return res.status(400).json({ error: 'Invalid profileId' });
+
+  const updates = {};
+  if (req.body.name) updates.name = req.body.name.trim();
+  if (req.body.age)  updates.age  = parseInt(req.body.age);
+  if (req.body.color) updates.color = req.body.color;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', profileId)
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ profile: data });
+});
+
+// DELETE /api/profiles/:profileId — delete profile and its history
+app.delete('/api/profiles/:profileId', async (req, res) => {
+  const { profileId } = req.params;
+  if (!isValidUUID(profileId)) return res.status(400).json({ error: 'Invalid profileId' });
+
+  const { error } = await supabase.from('profiles').delete().eq('id', profileId);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// ── Reading History ────────────────────────────────────────────────────────
+
 // POST /api/history — persist a speed or voice test result
 app.post('/api/history', async (req, res) => {
-  const { userId, passageTitle, wpm, accuracy, testType } = req.body;
+  const { userId, profileId, passageTitle, wpm, accuracy, testType } = req.body;
   if (!userId || !isValidUUID(userId)) return res.status(400).json({ error: 'Valid userId UUID required' });
   if (!passageTitle) return res.status(400).json({ error: 'passageTitle required' });
   if (!['speed', 'voice'].includes(testType)) return res.status(400).json({ error: 'testType must be speed or voice' });
@@ -119,6 +186,7 @@ app.post('/api/history', async (req, res) => {
     .from('reading_history')
     .insert({
       user_id: userId,
+      profile_id: (profileId && isValidUUID(profileId)) ? profileId : null,
       passage_title: passageTitle,
       wpm: wpm ?? null,
       accuracy: accuracy ?? null,
@@ -131,32 +199,36 @@ app.post('/api/history', async (req, res) => {
   res.status(201).json({ entry: data });
 });
 
-// GET /api/history/:userId — fetch up to 20 most recent entries
+// GET /api/history/:userId — fetch most recent entries, optionally filtered by profileId
 app.get('/api/history/:userId', async (req, res) => {
   const { userId } = req.params;
+  const { profileId } = req.query;
   if (!isValidUUID(userId)) return res.status(400).json({ error: 'Invalid userId' });
 
-  const { data, error } = await supabase
+  let q = supabase
     .from('reading_history')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(20);
 
+  if (profileId && isValidUUID(profileId)) q = q.eq('profile_id', profileId);
+
+  const { data, error } = await q;
   if (error) return res.status(500).json({ error: error.message });
   res.json({ history: data || [] });
 });
 
-// DELETE /api/history/:userId — wipe all history for the user
+// DELETE /api/history/:userId — wipe history, optionally for one profile
 app.delete('/api/history/:userId', async (req, res) => {
   const { userId } = req.params;
+  const { profileId } = req.query;
   if (!isValidUUID(userId)) return res.status(400).json({ error: 'Invalid userId' });
 
-  const { error } = await supabase
-    .from('reading_history')
-    .delete()
-    .eq('user_id', userId);
+  let q = supabase.from('reading_history').delete().eq('user_id', userId);
+  if (profileId && isValidUUID(profileId)) q = q.eq('profile_id', profileId);
 
+  const { error } = await q;
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });

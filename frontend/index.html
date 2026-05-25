@@ -8,15 +8,50 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #F0F8FF; --card: #fff; --text: #2D3436; --muted: #636E72; --radius: 16px;
-    }
+    :root { --bg: #F0F8FF; --card: #fff; --text: #2D3436; --muted: #636E72; --radius: 16px; }
     body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Profile Overlay ── */
+    .profile-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 32px 16px 48px; }
+    .profile-overlay h1 { font-family: 'Fredoka One', cursive; font-size: 36px; color: #1565C0; margin-bottom: 4px; }
+    .profile-overlay .sub { font-size: 15px; color: var(--muted); font-weight: 700; margin-bottom: 28px; }
+    .profile-grid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 560px; margin-bottom: 20px; }
+    .profile-card { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 18px 16px; border-radius: 20px; border: 2.5px solid transparent; transition: all 0.2s; min-width: 110px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .profile-card:hover { border-color: #1565C0; transform: translateY(-4px); box-shadow: 0 6px 18px rgba(21,101,192,0.15); }
+    .profile-avatar-lg { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 34px; color: #fff; }
+    .profile-card-name { font-weight: 800; font-size: 15px; color: var(--text); }
+    .profile-card-age { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .profile-card-level { font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 20px; background: #E3F2FD; color: #1565C0; }
+    .add-profile-btn { display: flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 40px; border: 2.5px dashed #B3D0EE; background: transparent; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: #1565C0; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+    .add-profile-btn:hover { background: #E3F2FD; border-color: #1565C0; }
+
+    /* ── Profile Modal ── */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-card { background: #fff; border-radius: 24px; padding: 28px; width: 100%; max-width: 380px; }
+    .modal-title { font-family: 'Fredoka One', cursive; font-size: 22px; color: #1565C0; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 6px; display: block; text-transform: uppercase; }
+    .form-input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #B3D0EE; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; outline: none; }
+    .form-input:focus { border-color: #1565C0; }
+    .age-display { font-family: 'Fredoka One', cursive; font-size: 40px; color: #1565C0; text-align: center; margin: 4px 0; }
+    .color-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .color-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.15s; }
+    .color-dot:hover { transform: scale(1.15); }
+    .color-dot.selected { border-color: #333; transform: scale(1.15); }
+    .modal-btn-row { display: flex; gap: 10px; margin-top: 20px; }
+
+    /* ── Main App ── */
     .app { max-width: 700px; margin: 0 auto; padding: 16px; }
-    .header { text-align: center; padding: 20px 0 8px; }
+    .header { text-align: center; padding: 16px 0 6px; position: relative; }
     .header h1 { font-family: 'Fredoka One', cursive; font-size: 34px; color: #1565C0; }
     .header p { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 600; }
-    .tabs { display: flex; gap: 6px; margin: 14px 0; background: #e3eaf5; border-radius: 40px; padding: 4px; }
+    .profile-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0 4px; }
+    .profile-badge { display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: 30px; background: #E3F2FD; border: 1.5px solid #B3D0EE; cursor: pointer; transition: all 0.2s; }
+    .profile-badge:hover { background: #BBDEFB; }
+    .profile-avatar-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 14px; color: #fff; flex-shrink: 0; }
+    .profile-badge-name { font-weight: 800; font-size: 13px; color: #1565C0; }
+    .profile-badge-level { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .tabs { display: flex; gap: 6px; margin: 10px 0; background: #e3eaf5; border-radius: 40px; padding: 4px; }
     .tab { flex: 1; padding: 9px 4px; border: none; border-radius: 36px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
     .tab.active { background: #1565C0; color: #fff; }
     .card { background: var(--card); border-radius: var(--radius); border: 1.5px solid #D0E4F7; padding: 18px; margin-bottom: 12px; }
@@ -37,6 +72,7 @@
     .btn-sun { background: #FFB300; color: #5D4037; box-shadow: 0 4px 0 #F57F17; }
     .btn-green { background: #43A047; color: #fff; box-shadow: 0 4px 0 #2E7D32; }
     .btn-outline { background: transparent; color: #E53935; border: 2px solid #E53935; box-shadow: none; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
     .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
     .progress-bar-wrap { background: #e3eaf5; border-radius: 20px; height: 12px; overflow: hidden; margin: 8px 0; }
     .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #42A5F5, #1565C0); transition: width 0.3s; }
@@ -90,10 +126,57 @@
   </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ══════════ PROFILE OVERLAY ══════════ -->
+<div id="profile-overlay" class="profile-overlay">
+  <h1>📚 Reading Rocket</h1>
+  <p class="sub">Who's reading today?</p>
+  <div class="profile-grid" id="profile-grid"></div>
+  <button class="add-profile-btn" onclick="openProfileModal()">＋ Add New Reader</button>
+</div>
+
+<!-- ══════════ PROFILE MODAL ══════════ -->
+<div id="profile-modal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <div class="modal-title" id="modal-title">👤 New Reader</div>
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="modal-name" placeholder="e.g. Emma" maxlength="20" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Age</label>
+      <div class="age-display" id="age-display">8</div>
+      <input type="range" min="4" max="18" value="8" id="modal-age" oninput="updateAgeDisplay()" style="width:100%;margin-top:4px;" />
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:700;margin-top:2px;"><span>4</span><span id="age-level-label" style="color:#1565C0;"></span><span>18</span></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Favourite Colour</label>
+      <div class="color-grid" id="color-grid"></div>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveProfile()">Save</button>
+      <button class="btn btn-outline btn-sm" onclick="closeProfileModal()">Cancel</button>
+    </div>
+    <div id="modal-error" style="font-size:13px;color:#E53935;font-weight:700;margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN APP ══════════ -->
+<div class="app" id="main-app" style="display:none;">
   <div class="header">
     <h1>📚 Reading Rocket</h1>
     <p>Let's train your brain to read faster!</p>
+    <div class="profile-bar">
+      <div class="profile-badge" id="profile-badge" onclick="showProfileOverlay()">
+        <div class="profile-avatar-sm" id="badge-avatar"></div>
+        <div>
+          <div class="profile-badge-name" id="badge-name"></div>
+          <div class="profile-badge-level" id="badge-level"></div>
+        </div>
+        <span style="font-size:11px;color:var(--muted);margin-left:4px;">▼</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="openProfileModal()" style="padding:5px 12px;font-size:11px;">＋ Add</button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -103,7 +186,7 @@
     <button class="tab" onclick="switchTab('history')">🏆 My Scores</button>
   </div>
 
-  <!-- ══════════ SPEED TEST ══════════ -->
+  <!-- SPEED TEST -->
   <div id="tab-speed">
     <div class="card">
       <div class="section-title">Pick a story</div>
@@ -137,15 +220,11 @@
     </div>
   </div>
 
-  <!-- ══════════ VOICE ANALYSIS ══════════ -->
+  <!-- VOICE ANALYSIS -->
   <div id="tab-voice" class="hidden">
-
     <div class="card">
       <div class="section-title">🔑 Your Claude API Key</div>
-      <div class="info-note">
-        Your key is encrypted and stored securely on our server — never in plain text.
-        Get yours at <a href="https://console.anthropic.com" target="_blank" style="color:#1565C0;">console.anthropic.com</a>
-      </div>
+      <div class="info-note">Your key is encrypted and stored securely. Get yours at <a href="https://console.anthropic.com" target="_blank" style="color:#1565C0;">console.anthropic.com</a></div>
       <div id="api-key-saved-banner" class="hidden" style="background:#E8F5E9;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#2E7D32;margin-bottom:12px;">
         ✅ API key saved — <span id="api-key-masked"></span>
         <button onclick="showKeyInput()" style="margin-left:10px;background:none;border:none;color:#1565C0;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Change</button>
@@ -155,38 +234,30 @@
           <input type="password" id="api-key-input" placeholder="sk-ant-..." />
           <button class="btn btn-primary" style="padding:9px 18px;font-size:13px;" onclick="saveApiKey()">Save</button>
         </div>
-        <div id="api-key-status" style="font-size:13px; color:var(--muted); font-weight:700;"></div>
+        <div id="api-key-status" style="font-size:13px;color:var(--muted);font-weight:700;"></div>
       </div>
     </div>
-
     <div class="card">
       <div class="section-title">Pick a story to read aloud</div>
       <div class="passage-selector" id="voice-passage-selector"></div>
       <div class="voice-passage-text" id="voice-passage-display"></div>
     </div>
-
     <div class="card">
       <div class="section-title">🎙 Record &amp; Analyze</div>
-      <div class="info-note">Click <strong>Start Recording</strong>, read the story out loud, then click <strong>Stop &amp; Analyze</strong>. Claude will listen and give feedback!</div>
-
+      <div class="info-note">Click <strong>Start Recording</strong>, read the story out loud, then click <strong>Stop &amp; Analyze</strong>.</div>
       <div class="mic-status" id="mic-status">
         <div class="mic-dot" id="mic-dot"></div>
         <span id="mic-label">Ready to record</span>
       </div>
-
-      <div id="transcript-wrap">
-        <div style="font-size:12px; color:var(--muted); font-weight:700; margin-bottom:6px;">WHAT I HEARD:</div>
-        <div class="transcript-box" id="transcript-box">
-          <span class="transcript-placeholder">Your words will appear here as you read…</span>
-        </div>
+      <div>
+        <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">WHAT I HEARD:</div>
+        <div class="transcript-box" id="transcript-box"><span class="transcript-placeholder">Your words will appear here as you read…</span></div>
       </div>
-
-      <div class="btn-row" id="voice-btn-row">
+      <div class="btn-row">
         <button class="btn btn-green" id="record-btn" onclick="toggleRecording()">🎙 Start Recording</button>
         <button class="btn btn-primary hidden" id="analyze-btn" onclick="analyzeReading()">🤖 Analyze with Claude</button>
       </div>
     </div>
-
     <div class="card hidden" id="analysis-card">
       <div class="section-title">🤖 Claude's Feedback</div>
       <div id="analysis-content"></div>
@@ -196,15 +267,14 @@
         <button class="btn btn-sun" onclick="resetVoice()">🔄 Try Again</button>
       </div>
     </div>
-
   </div>
 
-  <!-- ══════════ FLASH TRAINER ══════════ -->
+  <!-- FLASH TRAINER -->
   <div id="tab-flash" class="hidden">
     <div class="card">
       <div class="section-title">⚡ Flash Trainer</div>
-      <p style="font-size:14px; color:var(--muted); margin-bottom:12px; font-weight:600; line-height:1.6;">Words flash one at a time. Try to read each one as fast as you can!</p>
-      <div style="display:flex; align-items:center; gap:10px; margin:12px 0;">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:12px;font-weight:600;line-height:1.6;">Words flash one at a time. Try to read each one as fast as you can!</p>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0;">
         <label style="font-size:13px;color:var(--muted);font-weight:700;min-width:60px;">Speed</label>
         <input type="range" min="1" max="5" value="2" step="1" id="flash-speed" oninput="updateFlashSpeed()" style="flex:1;" />
         <span style="font-size:14px;font-weight:800;color:#1565C0;min-width:90px;text-align:right;" id="flash-speed-label">Slow</span>
@@ -221,9 +291,9 @@
     </div>
   </div>
 
-  <!-- ══════════ HISTORY ══════════ -->
+  <!-- HISTORY -->
   <div id="tab-history" class="hidden">
-    <div class="card" id="avg-card" style="display:none; margin-bottom:12px;">
+    <div class="card" id="avg-card" style="display:none;margin-bottom:12px;">
       <div class="stat-grid">
         <div class="stat-box" style="background:#E3F2FD;"><div class="stat-label" style="color:#1565C0;">BEST WPM</div><div class="stat-val" style="color:#1565C0;" id="stat-best">—</div></div>
         <div class="stat-box" style="background:#E8F5E9;"><div class="stat-label" style="color:#2E7D32;">AVERAGE WPM</div><div class="stat-val" style="color:#43A047;" id="stat-avg">—</div></div>
@@ -232,84 +302,120 @@
     </div>
     <div class="card">
       <div class="section-title">🏆 My Reading Scores</div>
-      <div id="history-content">
-        <div class="analysis-loading" style="justify-content:center;padding:24px 0;">
-          <div class="spinner"></div><span>Loading scores…</span>
-        </div>
-      </div>
+      <div id="history-content"><div class="analysis-loading" style="justify-content:center;padding:24px 0;"><div class="spinner"></div><span>Loading…</span></div></div>
       <div class="btn-row" id="clear-history-row" style="display:none;">
-        <button class="btn btn-outline" style="font-size:13px;padding:8px 18px;" onclick="clearHistory()">🗑 Clear All Scores</button>
+        <button class="btn btn-outline btn-sm" onclick="clearHistory()">🗑 Clear My Scores</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Toast notification -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG — replace with your deployed Render URL ──────────────────────────
+// ── CONFIG ─────────────────────────────────────────────────────────────────
 const BACKEND_URL = 'https://reading-rocket-backend.onrender.com';
 
-const ALL_PASSAGES = [
-  { title:"🐶 The Dog",       text:"The dog ran fast across the green yard. He jumped over the big log and splashed into the cool pond. His tail wagged as he shook the water off his fur. The boy laughed and gave him a treat. They played all afternoon until the sun went down. The dog curled up by the fire and fell fast asleep." },
-  { title:"🌙 The Moon",      text:"The moon lights up the dark sky at night. It glows bright and big when it is full. Some nights it looks like a thin smile. Stars twinkle all around it. Long ago, people told stories about the man in the moon. Owls hoot and frogs sing when the moon is out. It is one of the most beautiful things in the whole sky." },
-  { title:"🦋 A Butterfly",   text:"A tiny egg sits on a green leaf. Soon a small caterpillar comes out. It eats and eats every day. Then it spins a cozy cocoon around itself. Inside, something amazing happens. Slowly, wings begin to grow. One day, a beautiful butterfly breaks free. It spreads its bright wings and flies up into the warm sunny sky." },
-  { title:"🏔 The Hike",      text:"Max and his dad put on their boots and backpacks. They started up the rocky trail early in the morning. Birds sang in the tall pine trees. Max spotted a deer drinking from a stream. His legs got tired but he kept going. At the top of the hill they could see for miles. Dad gave him a high five. Max felt proud and happy." },
-  { title:"🍕 Pizza Night",   text:"Friday is pizza night at our house. Mom stretches the dough into a big circle. My brother and I put on the sauce. Then we add cheese, pepperoni, and olives. Dad slides it into the hot oven. We wait and wait while the whole kitchen smells amazing. The timer beeps and out comes a perfect golden pizza. Everyone grabs a slice and we eat together." },
-  { title:"🌊 The Ocean",     text:"The ocean is wide and deep and full of life. Waves crash on the sandy shore all day long. Fish of every color swim below the surface. Dolphins leap and splash in the sunlight. Deep down, it is cold and very dark. Giant whales sing to each other across the water. The ocean is the biggest place on our whole planet." },
-  { title:"🚀 The Rocket",    text:"The rocket stood tall on the launch pad. Its engines roared and fire shot out below. It lifted off the ground very slowly at first. Then faster and faster it climbed into the sky. The astronauts inside felt a big push. Soon they were above the clouds and into space. Stars appeared all around them. Their adventure had just begun." },
-  { title:"🐝 The Bees",      text:"Bees are very busy insects. They fly from flower to flower all day long. They collect sweet nectar and carry it back to the hive. Inside, they make honey from the nectar. Each bee has an important job to do. Some guard the door. Some feed the babies. The queen bee lays all the eggs. Without bees, many plants could not grow." },
-  { title:"🌧 The Rain",      text:"Dark clouds rolled in over the hills. The wind picked up and the air felt cool. A rumble of thunder shook the sky. Then big raindrops began to fall. Puddles formed on the streets and in the yard. The garden soaked up the water it needed. After an hour the rain stopped. The sun came back out and a rainbow appeared in the sky." },
-  { title:"🦁 The Lion",      text:"The lion is known as the king of animals. It has a thick mane of fur around its face. Lions live on the grassy plains of Africa. They hunt together as a group called a pride. The females do most of the hunting at night. A lion's roar can be heard from very far away. Lion cubs love to play and tumble in the grass all day long." },
+// ── PASSAGES BY AGE GROUP ──────────────────────────────────────────────────
+const PASSAGES_BEGINNER = [ // ages 4–6  (~40 words)
+  { title:'🐱 My Cat',      text:'My cat is named Milo. He has soft orange fur and big green eyes. He likes to sleep in sunny spots. When he is happy he purrs very loudly. At night he curls up on my pillow. I love my cat so much.' },
+  { title:'🌈 The Rainbow', text:'After the rain the sun came out. A big rainbow filled the sky. I could see red, orange, yellow, green, blue, and purple. Rainbows are made when sunlight shines through water drops. I made a wish on the rainbow.' },
+  { title:'🐸 The Frog',    text:'A little green frog sat on a lily pad. It looked at me with big golden eyes. Then it jumped into the pond with a big splash. I tried to catch it but it was too fast. Frogs are very good at jumping.' },
+  { title:'🍎 Apple Day',   text:'We went to the apple farm today. The trees were full of big red apples. I picked the biggest one I could reach. It was sweet and crunchy and delicious. We brought home a whole basket. Mom will make a pie tonight.' },
+  { title:'⭐ The Stars',   text:'When I go to bed the sky gets dark. I can see tiny stars twinkling above. My dad says each star is like our sun but very far away. I tried to count them all but there are too many. I make a wish on the brightest one every night.' },
 ];
 
-// Shuffle a copy so order is different every page load
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-const PASSAGES = shuffle(ALL_PASSAGES);
+const PASSAGES_EARLY = [ // ages 7–8  (~60 words)
+  { title:'🐶 The Dog',      text:'The dog ran fast across the green yard. He jumped over the big log and splashed into the cool pond. His tail wagged as he shook the water off his fur. The boy laughed and gave him a treat. They played all afternoon until the sun went down. The dog curled up by the fire and fell fast asleep.' },
+  { title:'🌙 The Moon',     text:'The moon lights up the dark sky at night. It glows bright and big when it is full. Some nights it looks like a thin smile. Stars twinkle all around it. Long ago, people told stories about the man in the moon. Owls hoot and frogs sing when the moon is out. It is one of the most beautiful things in the whole sky.' },
+  { title:'🦋 A Butterfly',  text:'A tiny egg sits on a green leaf. Soon a small caterpillar comes out. It eats and eats every day. Then it spins a cozy cocoon around itself. Inside, something amazing happens. Slowly, wings begin to grow. One day, a beautiful butterfly breaks free. It spreads its bright wings and flies up into the warm sunny sky.' },
+  { title:'🏔 The Hike',     text:'Max and his dad put on their boots and backpacks. They started up the rocky trail early in the morning. Birds sang in the tall pine trees. Max spotted a deer drinking from a stream. His legs got tired but he kept going. At the top of the hill they could see for miles. Dad gave him a high five. Max felt proud and happy.' },
+  { title:'🍕 Pizza Night',  text:'Friday is pizza night at our house. Mom stretches the dough into a big circle. My brother and I put on the sauce. Then we add cheese, pepperoni, and olives. Dad slides it into the hot oven. We wait and wait while the whole kitchen smells amazing. The timer beeps and out comes a perfect golden pizza. Everyone grabs a slice and we eat together.' },
+  { title:'🌊 The Ocean',    text:'The ocean is wide and deep and full of life. Waves crash on the sandy shore all day long. Fish of every color swim below the surface. Dolphins leap and splash in the sunlight. Deep down, it is cold and very dark. Giant whales sing to each other across the water. The ocean is the biggest place on our whole planet.' },
+  { title:'🚀 The Rocket',   text:'The rocket stood tall on the launch pad. Its engines roared and fire shot out below. It lifted off the ground very slowly at first. Then faster and faster it climbed into the sky. The astronauts inside felt a big push. Soon they were above the clouds and into space. Stars appeared all around them. Their adventure had just begun.' },
+  { title:'🐝 The Bees',     text:'Bees are very busy insects. They fly from flower to flower all day long. They collect sweet nectar and carry it back to the hive. Inside, they make honey from the nectar. Each bee has an important job to do. Some guard the door. Some feed the babies. The queen bee lays all the eggs. Without bees, many plants could not grow.' },
+  { title:'🌧 The Rain',     text:'Dark clouds rolled in over the hills. The wind picked up and the air felt cool. A rumble of thunder shook the sky. Then big raindrops began to fall. Puddles formed on the streets and in the yard. The garden soaked up the water it needed. After an hour the rain stopped. The sun came back out and a rainbow appeared in the sky.' },
+  { title:'🦁 The Lion',     text:'The lion is known as the king of animals. It has a thick mane of fur around its face. Lions live on the grassy plains of Africa. They hunt together as a group called a pride. The females do most of the hunting at night. A lion\'s roar can be heard from very far away. Lion cubs love to play and tumble in the grass all day long.' },
+];
 
+const PASSAGES_MIDDLE = [ // ages 9–10  (~90 words)
+  { title:'🌋 Volcanoes',     text:'Volcanoes are among the most powerful forces on Earth. They form where hot liquid rock called magma pushes up through cracks in the planet\'s crust. When a volcano erupts, rivers of bright orange lava flow down its sides and huge clouds of ash rise into the sky. Some eruptions are so powerful they can be heard from hundreds of miles away. Although volcanoes can be very dangerous, they also help create new land over time. The Hawaiian Islands were built entirely by volcanic eruptions rising from the ocean floor over millions of years.' },
+  { title:'🐋 Blue Whale',    text:'The blue whale is the largest animal that has ever lived on Earth. These magnificent creatures can grow to one hundred feet long and weigh as much as two hundred tons. Despite their enormous size, blue whales survive entirely by eating tiny shrimp-like creatures called krill. A single blue whale can eat up to four tons of krill in a single day. Blue whales communicate with each other using deep rumbling sounds that can travel thousands of miles through the ocean. Sadly, they were hunted almost to extinction in the twentieth century and are still endangered today.' },
+  { title:'🏛 Ancient Egypt', text:'Ancient Egypt was one of the greatest civilizations in history, lasting for over three thousand years. It grew along the banks of the Nile River, whose yearly floods left behind rich, fertile soil perfect for growing crops. The ancient Egyptians built enormous stone pyramids as tombs for their pharaohs and developed a beautiful writing system using pictures called hieroglyphics. They were also skilled doctors, mathematicians, and engineers. When archaeologist Howard Carter discovered the untouched tomb of the young pharaoh Tutankhamun in 1922, the world was amazed by the incredible golden treasures found inside.' },
+  { title:'🦅 Eagles',        text:'The bald eagle is the national bird and symbol of the United States. These powerful birds have a wingspan that can reach eight feet, making them one of the largest birds in North America. They have excellent eyesight roughly four times sharper than a human\'s, allowing them to spot a fish beneath the surface of a lake from hundreds of feet in the air. Eagles dive at incredible speeds to snatch prey with their sharp talons. They build enormous nests called eyries, which they return to each year, adding more material until the nests become enormous structures.' },
+  { title:'🌿 Rainforests',   text:'Tropical rainforests are the most biologically diverse places on Earth. Although they cover only about six percent of the planet\'s surface, they are home to more than half of all plant and animal species in the world. The Amazon in South America is the largest, stretching across nine countries and producing about twenty percent of the world\'s oxygen, earning it the nickname the lungs of the Earth. Rainforests receive at least eighty inches of rain every year, creating a warm, humid environment where thousands of species thrive. Unfortunately, large areas are destroyed each year for farming and logging.' },
+];
+
+const PASSAGES_UPPER = [ // ages 11–12  (~115 words)
+  { title:'🧠 The Human Brain',      text:'The human brain is one of the most extraordinary and complex structures in the known universe. Weighing approximately three pounds, it contains around eighty-six billion neurons, each capable of forming thousands of connections with other neurons. These synaptic connections create a network of staggering complexity that enables us to think, feel, remember, create, and imagine. Different regions of the brain are specialised for different functions: the prefrontal cortex handles planning and decision-making, the amygdala processes emotions, and the hippocampus plays a critical role in forming new memories. Despite centuries of scientific study, the brain remains deeply mysterious. Researchers still do not fully understand how the physical activity of billions of neurons gives rise to our conscious experience of the world around us.' },
+  { title:'🌍 Climate Change',        text:'Climate change is one of the most significant challenges confronting humanity in the twenty-first century. Since the industrial revolution began in the 1800s, human activities such as burning fossil fuels and clearing forests have released vast quantities of greenhouse gases, including carbon dioxide and methane, into the atmosphere. These gases trap heat from the sun, causing average global temperatures to rise. The consequences of this warming are already visible around the world: glaciers are retreating, sea levels are rising, coral reefs are bleaching, and extreme weather events such as droughts, floods, and powerful hurricanes are becoming more frequent and more intense. Scientists warn that without dramatic reductions in emissions, the consequences in the coming decades could become severe and irreversible.' },
+  { title:'🚀 Space Exploration',     text:'The space age began on October 4, 1957, when the Soviet Union launched Sputnik, the world\'s first artificial satellite. Less than twelve years later, Neil Armstrong and Buzz Aldrin became the first humans to walk on the surface of the Moon. In the decades since, robotic spacecraft have explored every planet in our solar system, and the Hubble Space Telescope has revealed galaxies billions of light-years distant. Today, a new era of space exploration is underway, driven by both government agencies and private companies. NASA\'s Artemis programme aims to return astronauts to the Moon, while SpaceX is developing spacecraft capable of carrying humans to Mars. These missions may one day answer the profound question of whether life exists elsewhere in the universe.' },
+  { title:'🎭 Shakespeare',           text:'William Shakespeare, born in Stratford-upon-Avon in 1564, is widely regarded as the greatest writer in the English language. Over the course of his career, he wrote thirty-seven plays and one hundred fifty-four sonnets that continue to be performed, studied, and celebrated around the world more than four hundred years after his death. His works explore the deepest aspects of human experience with remarkable insight and compassion: ambition and guilt in Macbeth, love and fate in Romeo and Juliet, and the nature of justice in The Merchant of Venice. Shakespeare enriched the English language immeasurably, coining over seventeen hundred words and phrases still in common use today, including lonely, generous, bedroom, and countless others that we use every day without realising it.' },
+  { title:'🌊 The Deep Ocean',        text:'The deep ocean is one of the last great frontiers of exploration on Earth. Below two hundred metres, sunlight cannot penetrate the water, creating a realm of permanent darkness where pressures can reach a thousand times greater than at the surface. Yet remarkable life has adapted to these extreme conditions. Bioluminescent organisms produce their own cold light to attract prey, communicate, or confuse predators in the inky blackness. Hydrothermal vents on the ocean floor release superheated water laden with minerals, supporting extraordinary ecosystems of tube worms, shrimp, and bacteria that derive energy not from sunlight but from chemical reactions. Scientists estimate that more than eighty percent of the ocean floor remains unexplored and unmapped, making it a frontier greater even than outer space.' },
+];
+
+const PASSAGES_ADVANCED = [ // ages 13+  (~140 words)
+  { title:'🧬 DNA and Genetics',      text:'Deoxyribonucleic acid, universally known as DNA, is the molecular foundation of heredity and the blueprint governing the development and function of all known living organisms. Organised into forty-six chromosomes within the nucleus of nearly every human cell, the approximately three billion base pairs of our genome encode roughly twenty thousand genes. These genes direct the synthesis of proteins that perform virtually every biological function, from catalysing chemical reactions to structuring tissues. The landmark discovery of DNA\'s double helix structure by James Watson and Francis Crick in 1953, building on Rosalind Franklin\'s pivotal X-ray crystallography work, revolutionised our understanding of life itself. Today, next-generation sequencing technologies can decode an entire human genome in hours. Researchers are now developing CRISPR-based gene therapies capable of correcting pathogenic mutations with unprecedented precision, raising both extraordinary medical promise and profound ethical questions about the boundaries of human intervention in the genetic code.' },
+  { title:'🏛 The French Revolution', text:'The French Revolution, which erupted in 1789 and convulsed France for a decade, stands as one of the most consequential political upheavals in the history of Western civilisation. Its immediate causes were multiple and intertwined: the fiscal crisis of the monarchy under Louis XVI, the sharp social inequalities of the Ancien Régime that privileged the nobility and clergy while subjecting the peasantry to ruinous taxation and periodic famine, and the pervasive influence of Enlightenment philosophy challenging the legitimacy of hereditary rule. The storming of the Bastille on July 14, 1789, galvanised revolutionary sentiment and precipitated the collapse of the old order. What followed was a decade of radical transformation, democratic experimentation, and brutal violence, culminating in the Reign of Terror and ultimately the rise of Napoleon Bonaparte, who would export revolutionary ideals — and imperial ambition — across the European continent, redrawing its political map.' },
+  { title:'🔭 Quantum Mechanics',     text:'Quantum mechanics, the branch of physics governing the behaviour of matter and energy at atomic and subatomic scales, represents one of the most profound and counterintuitive achievements of twentieth-century science. Unlike classical physics, which describes a deterministic universe of predictable trajectories, quantum theory reveals a reality governed by probability and deep uncertainty. Heisenberg\'s Uncertainty Principle establishes that it is fundamentally impossible to simultaneously determine both the precise position and momentum of a subatomic particle — a limitation of nature itself, not merely of measurement. Perhaps most strikingly, particles exist in superpositions of multiple states simultaneously until the act of observation causes the wave function to collapse into a single definite outcome. Einstein famously rejected this indeterminacy. Yet decades of rigorous experiments have consistently confirmed quantum mechanics\' predictions with extraordinary accuracy, underpinning technologies from lasers and transistors to MRI machines and the quantum computers now under rapid development.' },
+  { title:'🌿 Biodiversity Crisis',   text:'The Earth is currently experiencing what scientists describe as its sixth mass extinction event: a catastrophic loss of biodiversity driven not by asteroid impacts or volcanic eruptions, as in previous extinctions, but by the activities of a single species — Homo sapiens. The background rate of extinction in geological history is approximately one to five species per year; current estimates suggest we are losing species at a rate one thousand times higher, with the loss accelerating as human pressures intensify. Habitat destruction remains the primary driver, as forests, wetlands, and grasslands are converted to agricultural and urban uses. Climate change, pollution, invasive species, and overexploitation compound the crisis. The consequences extend far beyond the intrinsic value of biodiversity: intact ecosystems provide services upon which human civilisation fundamentally depends, including pollination, water purification, climate regulation, and disease suppression. Preserving biodiversity is not merely an ethical imperative — it is a prerequisite for long-term human survival.' },
+  { title:'🤖 Artificial Intelligence',text:'Artificial intelligence, once confined to science fiction, has emerged as perhaps the most transformative technological development of the early twenty-first century. Modern AI systems, powered by deep neural networks trained on vast datasets, have achieved remarkable proficiency across domains long considered uniquely human: mastering complex games like chess and Go, generating coherent and creative text, diagnosing diseases from medical images with accuracy rivalling specialist physicians, and navigating vehicles through complex urban environments. The large language models at the frontier of current AI research exhibit capabilities that challenge our assumptions about the nature of understanding and cognition itself. Yet profound challenges remain. These systems can exhibit biases embedded in their training data, generate plausible-sounding falsehoods with apparent confidence, and optimise for objectives in ways that diverge from human intentions. As AI capabilities accelerate, researchers, ethicists, and policymakers face urgent and unresolved questions about safety, accountability, and the long-term relationship between human and artificial intelligence.' },
+];
+
+function getAgeConfig(age) {
+  if (age <= 6)  return { passages: PASSAGES_BEGINNER, label: 'Early Reader ⭐',    stars: [60,  40]  };
+  if (age <= 8)  return { passages: PASSAGES_EARLY,    label: 'Growing Reader 📗',  stars: [90,  65]  };
+  if (age <= 10) return { passages: PASSAGES_MIDDLE,   label: 'Chapter Reader 📘',  stars: [120, 90]  };
+  if (age <= 12) return { passages: PASSAGES_UPPER,    label: 'Bookworm 📚',         stars: [150, 110] };
+  return           { passages: PASSAGES_ADVANCED,  label: 'Advanced Reader 🎓', stars: [180, 130] };
+}
+
+// ── Constants ──────────────────────────────────────────────────────────────
 const SPEED_LABELS = ['Very Slow','Slow','Normal','Fast','Super Fast'];
 const SPEED_MS     = [900,600,400,280,180];
+const AVATAR_COLORS = ['#1565C0','#2E7D32','#6A1B9A','#E65100','#C62828','#E91E63','#00695C','#F57F17'];
 
-// ── User identity (UUID stored in localStorage) ───────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────
+let USER_ID = null;
+let activeProfile = null;
+let PASSAGES = [];
+let currentPassageIdx = 0;
+let timerInterval = null, startTime = null, testState = 'idle';
+let flashInterval = null, flashWords = [], flashIdx = 0;
+let recognition = null, isRecording = false, liveTranscript = '', lastAnalysis = null;
+let editingProfileId = null;
+let selectedColor = AVATAR_COLORS[0];
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 function getOrCreateUserId() {
   let id = localStorage.getItem('rocketreader_user_id');
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem('rocketreader_user_id', id);
-  }
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('rocketreader_user_id', id); }
   return id;
 }
-const USER_ID = getOrCreateUserId();
-
 async function api(method, path, body) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(BACKEND_URL + path, opts);
   return res.json();
 }
-
-// ── Toast ──────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
 function showToast(msg, duration = 2500) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), duration);
 }
+function levelLabel(age) { return getAgeConfig(age).label; }
 
 // ── Init ───────────────────────────────────────────────────────────────────
 async function initApp() {
-  // Register user in DB (idempotent)
+  USER_ID = getOrCreateUserId();
   try { await api('POST', '/api/users', { userId: USER_ID }); } catch {}
 
-  // Check if the user already has a saved API key
+  // Load API key status
   try {
     const data = await api('GET', `/api/keys/${USER_ID}`);
     if (data.hasKey) {
@@ -319,14 +425,123 @@ async function initApp() {
     }
   } catch {}
 
+  // Load profiles
+  await refreshProfiles();
+}
+
+async function refreshProfiles() {
+  try {
+    const data = await api('GET', `/api/profiles/${USER_ID}`);
+    const profiles = data.profiles || [];
+    renderProfileOverlay(profiles);
+
+    // Auto-select last used profile
+    const savedId = localStorage.getItem('activeProfileId');
+    const saved = profiles.find(p => p.id === savedId);
+    if (saved) { selectProfile(saved); return; }
+
+    // Show overlay if profiles exist but none selected, or no profiles
+    showProfileOverlay();
+  } catch {
+    showProfileOverlay();
+  }
+}
+
+// ── Profile Overlay ────────────────────────────────────────────────────────
+function renderProfileOverlay(profiles) {
+  const grid = document.getElementById('profile-grid');
+  grid.innerHTML = '';
+  profiles.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.innerHTML = `
+      <div class="profile-avatar-lg" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
+      <div class="profile-card-name">${p.name}</div>
+      <div class="profile-card-age">Age ${p.age}</div>
+      <div class="profile-card-level">${levelLabel(p.age)}</div>`;
+    card.onclick = () => selectProfile(p);
+    grid.appendChild(card);
+  });
+}
+
+function showProfileOverlay() {
+  document.getElementById('profile-overlay').style.display = 'flex';
+  document.getElementById('main-app').style.display = 'none';
+}
+
+function selectProfile(profile) {
+  activeProfile = profile;
+  localStorage.setItem('activeProfileId', profile.id);
+  currentPassageIdx = 0;
+  PASSAGES = shuffle(getAgeConfig(profile.age).passages);
+
+  // Update badge
+  document.getElementById('badge-avatar').textContent = profile.name[0].toUpperCase();
+  document.getElementById('badge-avatar').style.background = profile.color;
+  document.getElementById('badge-name').textContent = profile.name;
+  document.getElementById('badge-level').textContent = levelLabel(profile.age);
+
+  document.getElementById('profile-overlay').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+
   buildSelector('passage-selector', renderPassage);
   renderPassage();
   updateFlashSpeed();
 }
 
-// ── Shared helpers ─────────────────────────────────────────────────────────
-let currentPassageIdx = 0;
+// ── Profile Modal ──────────────────────────────────────────────────────────
+function openProfileModal(profileToEdit) {
+  editingProfileId = profileToEdit ? profileToEdit.id : null;
+  document.getElementById('modal-title').textContent = profileToEdit ? '✏️ Edit Reader' : '👤 New Reader';
+  document.getElementById('modal-name').value = profileToEdit ? profileToEdit.name : '';
+  document.getElementById('modal-age').value = profileToEdit ? profileToEdit.age : 8;
+  selectedColor = profileToEdit ? profileToEdit.color : AVATAR_COLORS[0];
+  document.getElementById('modal-error').textContent = '';
+  updateAgeDisplay();
+  renderColorGrid();
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
+function renderColorGrid() {
+  const grid = document.getElementById('color-grid');
+  grid.innerHTML = '';
+  AVATAR_COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
+    dot.style.background = c;
+    dot.onclick = () => { selectedColor = c; renderColorGrid(); };
+    grid.appendChild(dot);
+  });
+}
+
+function updateAgeDisplay() {
+  const age = parseInt(document.getElementById('modal-age').value);
+  document.getElementById('age-display').textContent = age;
+  document.getElementById('age-level-label').textContent = levelLabel(age);
+}
+
+async function saveProfile() {
+  const name = document.getElementById('modal-name').value.trim();
+  const age  = parseInt(document.getElementById('modal-age').value);
+  const errEl = document.getElementById('modal-error');
+  if (!name) { errEl.textContent = 'Please enter a name.'; return; }
+
+  try {
+    if (editingProfileId) {
+      await api('PUT', `/api/profiles/${editingProfileId}`, { name, age, color: selectedColor });
+    } else {
+      await api('POST', '/api/profiles', { userId: USER_ID, name, age, color: selectedColor });
+    }
+    closeProfileModal();
+    await refreshProfiles();
+    showToast(editingProfileId ? '✅ Profile updated!' : `🎉 Welcome, ${name}!`);
+  } catch {
+    errEl.textContent = 'Could not save. Try again.';
+  }
+}
+
+// ── Shared helpers ─────────────────────────────────────────────────────────
 function buildSelector(id, cb) {
   const el = document.getElementById(id);
   el.innerHTML = '';
@@ -350,8 +565,6 @@ function switchTab(tab) {
 }
 
 // ── Speed Test ─────────────────────────────────────────────────────────────
-let timerInterval = null, startTime = null, testState = 'idle';
-
 function renderPassage() {
   resetTest();
   highlightSelector('passage-selector');
@@ -393,27 +606,22 @@ async function finishTest() {
   document.getElementById('result-card').classList.remove('hidden');
   document.getElementById('result-wpm').textContent = wpm;
 
+  const [hi, mid] = getAgeConfig(activeProfile.age).stars;
   let stars, msg, sub;
-  if (wpm >= 120) { stars='⭐⭐⭐'; msg='You are a Reading Rocket! 🚀'; sub='Wow, that is super fast! Amazing job!'; }
-  else if (wpm >= 90) { stars='⭐⭐⭐'; msg='Excellent reader! 🌟'; sub='You read really well! Keep it up!'; }
-  else if (wpm >= 65) { stars='⭐⭐'; msg='Great job! 😊'; sub='You are getting faster! Try again to beat your score.'; }
-  else if (wpm >= 45) { stars='⭐⭐'; msg='Good reading! 👍'; sub='Nice work! Practice makes perfect.'; }
-  else { stars='⭐'; msg='Keep practicing! 💪'; sub='Every time you practice, you get faster. You can do it!'; }
+  if (wpm >= hi)       { stars='⭐⭐⭐'; msg='You are a Reading Rocket! 🚀'; sub='Wow, that is super fast! Amazing job!'; }
+  else if (wpm >= mid) { stars='⭐⭐';  msg='Great job! 😊'; sub='You are getting faster! Try again to beat your score.'; }
+  else                 { stars='⭐';   msg='Keep practicing! 💪'; sub='Every time you practice, you get faster. You can do it!'; }
   document.getElementById('result-stars').textContent = stars;
   document.getElementById('result-msg').textContent = msg;
   document.getElementById('result-sub').textContent = sub;
 
-  try {
-    await api('POST', '/api/history', { userId: USER_ID, passageTitle: title, wpm, testType: 'speed' });
-  } catch {}
+  try { await api('POST', '/api/history', { userId: USER_ID, profileId: activeProfile.id, passageTitle: title, wpm, testType: 'speed' }); } catch {}
 }
 function tryAgain() { testState = 'idle'; renderPassage(); }
 function nextPassage() { currentPassageIdx = (currentPassageIdx + 1) % PASSAGES.length; testState = 'idle'; renderPassage(); buildSelector('passage-selector', renderPassage); }
 function resetTest() { clearInterval(timerInterval); testState = 'idle'; startTime = null; }
 
 // ── Voice Analysis ─────────────────────────────────────────────────────────
-let recognition = null, isRecording = false, liveTranscript = '', lastAnalysis = null;
-
 function showKeyInput() {
   document.getElementById('api-key-saved-banner').classList.add('hidden');
   document.getElementById('api-key-form').classList.remove('hidden');
@@ -422,9 +630,7 @@ async function saveApiKey() {
   const key = document.getElementById('api-key-input').value.trim();
   const st = document.getElementById('api-key-status');
   if (!key) return;
-  if (!key.startsWith('sk-ant-')) {
-    st.textContent = '⚠️ Key must start with sk-ant-'; st.style.color = '#F57F17'; return;
-  }
+  if (!key.startsWith('sk-ant-')) { st.textContent = '⚠️ Key must start with sk-ant-'; st.style.color = '#F57F17'; return; }
   st.textContent = 'Saving…'; st.style.color = 'var(--muted)';
   try {
     const res = await api('POST', '/api/keys', { userId: USER_ID, apiKey: key });
@@ -435,40 +641,26 @@ async function saveApiKey() {
     document.getElementById('api-key-form').classList.add('hidden');
     st.textContent = '';
     showToast('✅ API key saved securely!');
-  } catch {
-    st.textContent = '⚠️ Could not reach server. Try again.'; st.style.color = '#E53935';
-  }
+  } catch { st.textContent = '⚠️ Could not reach server.'; st.style.color = '#E53935'; }
 }
-
 function renderVoicePassage() {
   highlightSelector('voice-passage-selector');
   document.getElementById('voice-passage-display').textContent = PASSAGES[currentPassageIdx].text;
 }
-function toggleRecording() {
-  if (!isRecording) startRecording(); else stopRecording();
-}
+function toggleRecording() { if (!isRecording) startRecording(); else stopRecording(); }
 function startRecording() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alert('Sorry! Your browser does not support voice recording. Please try Chrome or Safari.'); return; }
+  if (!SR) { alert('Sorry! Voice recording needs Chrome or Safari.'); return; }
   liveTranscript = '';
-  recognition = new SR();
-  recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true;
+  recognition = new SR(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true;
   recognition.onresult = (e) => {
     let final = '', interim = '';
-    for (let i = 0; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript;
-    }
+    for (let i = 0; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript + ' '; else interim += e.results[i][0].transcript; }
     liveTranscript = final;
-    const box = document.getElementById('transcript-box');
-    box.innerHTML = '';
-    box.textContent = final + interim;
+    const box = document.getElementById('transcript-box'); box.innerHTML = ''; box.textContent = final + interim;
   };
-  recognition.onerror = (e) => {
-    if (e.error === 'not-allowed') alert('Microphone access was denied. Please allow access and try again.');
-  };
-  recognition.start();
-  isRecording = true;
+  recognition.onerror = (e) => { if (e.error === 'not-allowed') alert('Microphone access was denied.'); };
+  recognition.start(); isRecording = true;
   document.getElementById('mic-dot').className = 'mic-dot listening';
   document.getElementById('mic-label').textContent = '🔴 Listening… read the story out loud!';
   document.getElementById('record-btn').textContent = '⏹ Stop Recording';
@@ -476,8 +668,7 @@ function startRecording() {
   document.getElementById('analysis-card').classList.add('hidden');
 }
 function stopRecording() {
-  if (recognition) recognition.stop();
-  isRecording = false;
+  if (recognition) recognition.stop(); isRecording = false;
   document.getElementById('mic-dot').className = 'mic-dot done';
   document.getElementById('mic-label').textContent = '✅ Recording complete!';
   document.getElementById('record-btn').textContent = '🎙 Record Again';
@@ -486,66 +677,40 @@ function stopRecording() {
 }
 async function analyzeReading() {
   const transcript = liveTranscript.trim();
-  if (!transcript) { alert('No speech was recorded. Please try recording again.'); return; }
-
+  if (!transcript) { alert('No speech recorded. Please try again.'); return; }
   const passageTitle = PASSAGES[currentPassageIdx].title;
   const expectedText = PASSAGES[currentPassageIdx].text;
-
   document.getElementById('analysis-card').classList.remove('hidden');
-  document.getElementById('analysis-content').innerHTML = `
-    <div class="analysis-loading">
-      <div class="spinner"></div>
-      <span>Claude is reading your performance… just a moment!</span>
-    </div>`;
+  document.getElementById('analysis-content').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Claude is reading your performance…</span></div>`;
   document.getElementById('analyze-btn').disabled = true;
-
   try {
     const res = await api('POST', '/api/analyze', { userId: USER_ID, passageTitle, expectedText, transcript });
     if (res.error) throw new Error(res.error);
-
-    const raw = res.content[0].text;
-    const r = JSON.parse(raw.replace(/```json|```/g, '').trim());
-
+    const r = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
     const pct = r.accuracy_score;
     const pillClass = pct >= 80 ? 'score-high' : pct >= 60 ? 'score-mid' : 'score-low';
     const emoji = pct >= 80 ? '🌟' : pct >= 60 ? '😊' : '💪';
-
     document.getElementById('analysis-content').innerHTML = `
-      <div style="text-align:center; margin-bottom:14px;">
+      <div style="text-align:center;margin-bottom:14px;">
         <span class="score-pill ${pillClass}">${emoji} Accuracy: ${pct}%</span>
         <div style="font-size:13px;color:var(--muted);font-weight:700;margin-top:4px;">Fluency: ${r.fluency_rating} &nbsp;·&nbsp; ${r.words_correct} / ${r.words_total} words</div>
       </div>
       <div class="analysis-box">
-        <h3>🌟 What went well</h3>
-        <p style="margin-bottom:12px;">${r.what_went_well}</p>
-        ${r.missed_or_wrong_words && r.missed_or_wrong_words.length ? `
-        <h3>📝 Words to practice</h3>
-        <p style="margin-bottom:12px;">${r.missed_or_wrong_words.map(w=>`<span style="background:#FFF8E1;color:#F57F17;padding:2px 8px;border-radius:8px;font-weight:800;margin:2px;display:inline-block;">${w}</span>`).join(' ')}</p>` : ''}
-        <h3>💡 Tips for next time</h3>
-        <p style="margin-bottom:12px;">${r.areas_to_practice}</p>
+        <h3>🌟 What went well</h3><p style="margin-bottom:12px;">${r.what_went_well}</p>
+        ${r.missed_or_wrong_words?.length ? `<h3>📝 Words to practice</h3><p style="margin-bottom:12px;">${r.missed_or_wrong_words.map(w=>`<span style="background:#FFF8E1;color:#F57F17;padding:2px 8px;border-radius:8px;font-weight:800;margin:2px;display:inline-block;">${w}</span>`).join(' ')}</p>` : ''}
+        <h3>💡 Tips for next time</h3><p style="margin-bottom:12px;">${r.areas_to_practice}</p>
         <div style="text-align:center;font-size:18px;font-weight:800;color:#1565C0;padding:10px;background:#E3F2FD;border-radius:12px;">${r.fun_encouragement}</div>
       </div>`;
-
     lastAnalysis = r;
     document.getElementById('speak-btn').classList.remove('hidden');
-    document.getElementById('stop-speak-btn').classList.add('hidden');
-
-    try {
-      await api('POST', '/api/history', { userId: USER_ID, passageTitle, accuracy: pct, testType: 'voice' });
-    } catch {}
-
+    try { await api('POST', '/api/history', { userId: USER_ID, profileId: activeProfile.id, passageTitle, accuracy: pct, testType: 'voice' }); } catch {}
   } catch (err) {
-    document.getElementById('analysis-content').innerHTML = `
-      <div style="background:#FFF3E0;border-radius:12px;padding:16px;color:#E65100;font-weight:700;">
-        ⚠️ Could not get analysis: ${err.message}<br>
-        <span style="font-size:13px;color:var(--muted);">Make sure your API key is saved and try again.</span>
-      </div>`;
+    document.getElementById('analysis-content').innerHTML = `<div style="background:#FFF3E0;border-radius:12px;padding:16px;color:#E65100;font-weight:700;">⚠️ ${err.message}<br><span style="font-size:13px;color:var(--muted);">Make sure your API key is saved.</span></div>`;
   }
   document.getElementById('analyze-btn').disabled = false;
 }
 function resetVoice() {
-  stopSpeaking();
-  liveTranscript = ''; isRecording = false; lastAnalysis = null;
+  stopSpeaking(); liveTranscript = ''; isRecording = false; lastAnalysis = null;
   if (recognition) { try { recognition.stop(); } catch {} }
   document.getElementById('mic-dot').className = 'mic-dot';
   document.getElementById('mic-label').textContent = 'Ready to record';
@@ -558,15 +723,13 @@ function resetVoice() {
 
 // ── Teacher Voice Feedback ─────────────────────────────────────────────────
 function buildTeacherScript(r) {
-  const name = 'friend';
-  const missed = r.missed_or_wrong_words && r.missed_or_wrong_words.length
-    ? `Some words to practice are: ${r.missed_or_wrong_words.slice(0, 5).join(', ')}.`
-    : `You read every word correctly — fantastic!`;
-
+  const missed = r.missed_or_wrong_words?.length
+    ? `Some words to keep practising are: ${r.missed_or_wrong_words.slice(0, 5).join(', ')}.`
+    : 'You read every word correctly — fantastic!';
   return [
-    `Hello ${name}! I just listened to your reading, and I have some feedback for you.`,
-    `Your accuracy score is ${r.accuracy_score} out of 100, and your fluency is rated as: ${r.fluency_rating}.`,
-    `You read ${r.words_correct} out of ${r.words_total} words correctly. Great effort!`,
+    `Hello! I just listened to your reading and I have some feedback for you.`,
+    `Your accuracy score is ${r.accuracy_score} out of 100, and your fluency is rated as ${r.fluency_rating}.`,
+    `You read ${r.words_correct} out of ${r.words_total} words correctly.`,
     `Here is what you did really well. ${r.what_went_well}`,
     missed,
     `Here is my tip for next time. ${r.areas_to_practice}`,
@@ -574,88 +737,45 @@ function buildTeacherScript(r) {
     `Keep reading every day and you will get better and better. I am so proud of you!`
   ].join('  ');
 }
-
 function getTeacherVoice() {
   const voices = speechSynthesis.getVoices();
-  // Prefer a warm female English voice
-  const preferred = ['Samantha', 'Karen', 'Moira', 'Tessa', 'Fiona', 'Victoria'];
-  for (const name of preferred) {
-    const v = voices.find(v => v.name === name);
-    if (v) return v;
-  }
-  // Fall back to any en-US female voice
+  const preferred = ['Samantha','Karen','Moira','Tessa','Fiona','Victoria'];
+  for (const name of preferred) { const v = voices.find(v => v.name === name); if (v) return v; }
   return voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
-    || voices.find(v => v.lang.startsWith('en'))
-    || null;
+    || voices.find(v => v.lang.startsWith('en')) || null;
 }
-
 function speakFeedback() {
-  if (!lastAnalysis) return;
-  if (!window.speechSynthesis) { alert('Your browser does not support speech. Try Chrome or Safari.'); return; }
+  if (!lastAnalysis || !window.speechSynthesis) return;
   stopSpeaking();
-
-  const script = buildTeacherScript(lastAnalysis);
-  const utt = new SpeechSynthesisUtterance(script);
-
-  // Teacher-like tone: slightly slower, warm pitch
-  utt.rate = 0.88;
-  utt.pitch = 1.1;
-  utt.volume = 1;
-
-  // Assign voice after voices load (needed on some browsers)
-  const assignVoice = () => {
-    const v = getTeacherVoice();
-    if (v) utt.voice = v;
-  };
-  if (speechSynthesis.getVoices().length) { assignVoice(); }
-  else { speechSynthesis.addEventListener('voiceschanged', assignVoice, { once: true }); }
-
-  utt.onstart = () => {
-    document.getElementById('speak-btn').classList.add('hidden');
-    document.getElementById('stop-speak-btn').classList.remove('hidden');
-  };
-  utt.onend = utt.onerror = () => {
-    document.getElementById('speak-btn').classList.remove('hidden');
-    document.getElementById('stop-speak-btn').classList.add('hidden');
-  };
-
+  const utt = new SpeechSynthesisUtterance(buildTeacherScript(lastAnalysis));
+  utt.rate = 0.88; utt.pitch = 1.1; utt.volume = 1;
+  const assign = () => { const v = getTeacherVoice(); if (v) utt.voice = v; };
+  if (speechSynthesis.getVoices().length) assign(); else speechSynthesis.addEventListener('voiceschanged', assign, { once: true });
+  utt.onstart = () => { document.getElementById('speak-btn').classList.add('hidden'); document.getElementById('stop-speak-btn').classList.remove('hidden'); };
+  utt.onend = utt.onerror = () => { document.getElementById('speak-btn').classList.remove('hidden'); document.getElementById('stop-speak-btn').classList.add('hidden'); };
   speechSynthesis.speak(utt);
 }
-
 function stopSpeaking() {
   if (window.speechSynthesis) speechSynthesis.cancel();
-  document.getElementById('speak-btn') && document.getElementById('speak-btn').classList.remove('hidden');
-  document.getElementById('stop-speak-btn') && document.getElementById('stop-speak-btn').classList.add('hidden');
+  document.getElementById('speak-btn')?.classList.remove('hidden');
+  document.getElementById('stop-speak-btn')?.classList.add('hidden');
 }
 
 // ── Flash Trainer ──────────────────────────────────────────────────────────
-let flashInterval = null, flashWords = [], flashIdx = 0;
-
 function initFlashPassage() {
   stopFlash(); flashWords = []; flashIdx = 0;
   document.getElementById('flash-display').innerHTML = '<span style="font-family:\'Nunito\',sans-serif;font-size:16px;color:var(--muted);font-weight:700;">Press Start to begin!</span>';
   document.getElementById('flash-progress').style.width = '0%';
   highlightSelector('flash-passage-selector');
 }
-function updateFlashSpeed() {
-  const v = parseInt(document.getElementById('flash-speed').value);
-  document.getElementById('flash-speed-label').textContent = SPEED_LABELS[v - 1];
-}
+function updateFlashSpeed() { document.getElementById('flash-speed-label').textContent = SPEED_LABELS[parseInt(document.getElementById('flash-speed').value) - 1]; }
 function startFlash() {
-  stopFlash();
-  flashWords = PASSAGES[currentPassageIdx].text.split(' '); flashIdx = 0;
+  stopFlash(); flashWords = PASSAGES[currentPassageIdx].text.split(' '); flashIdx = 0;
   document.getElementById('flash-start-btn').classList.add('hidden');
   document.getElementById('flash-stop-btn').classList.remove('hidden');
   const ms = SPEED_MS[parseInt(document.getElementById('flash-speed').value) - 1];
   showFlashWord();
-  flashInterval = setInterval(() => {
-    flashIdx++;
-    if (flashIdx >= flashWords.length) {
-      stopFlash();
-      document.getElementById('flash-display').innerHTML = '<span style="font-size:36px;">🎉 All done! Great job!</span>';
-      document.getElementById('flash-progress').style.width = '100%';
-    } else { showFlashWord(); }
-  }, ms);
+  flashInterval = setInterval(() => { flashIdx++; if (flashIdx >= flashWords.length) { stopFlash(); document.getElementById('flash-display').innerHTML = '<span style="font-size:36px;">🎉 All done! Great job!</span>'; document.getElementById('flash-progress').style.width = '100%'; } else { showFlashWord(); } }, ms);
 }
 function showFlashWord() {
   document.getElementById('flash-display').textContent = flashWords[flashIdx];
@@ -672,13 +792,10 @@ async function loadHistory() {
   const el = document.getElementById('history-content');
   el.innerHTML = '<div class="analysis-loading" style="justify-content:center;padding:24px 0;"><div class="spinner"></div><span>Loading scores…</span></div>';
   document.getElementById('clear-history-row').style.display = 'none';
-
   try {
-    const data = await api('GET', `/api/history/${USER_ID}`);
+    const data = await api('GET', `/api/history/${USER_ID}?profileId=${activeProfile.id}`);
     renderHistory(data.history || []);
-  } catch {
-    el.innerHTML = '<p style="color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:24px 0;">Could not load scores. Check your connection. 🔌</p>';
-  }
+  } catch { el.innerHTML = '<p style="color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:24px 0;">Could not load scores. 🔌</p>'; }
 }
 function renderHistory(history) {
   const el = document.getElementById('history-content');
@@ -686,8 +803,7 @@ function renderHistory(history) {
   if (!history.length) {
     el.innerHTML = '<p style="color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:24px 0;">No scores yet! Do a Speed Test first. 🚀</p>';
     document.getElementById('avg-card').style.display = 'none';
-    document.getElementById('clear-history-row').style.display = 'none';
-    return;
+    document.getElementById('clear-history-row').style.display = 'none'; return;
   }
   if (speedHistory.length) {
     const avg = Math.round(speedHistory.reduce((s, r) => s + r.wpm, 0) / speedHistory.length);
@@ -700,25 +816,21 @@ function renderHistory(history) {
   el.innerHTML = '<table class="history-table"><thead><tr><th>Story</th><th>Score</th><th>Stars</th><th>Time</th></tr></thead><tbody>' +
     history.map(r => {
       const isVoice = r.test_type === 'voice';
-      const stars = isVoice ? '' : r.wpm >= 90 ? '⭐⭐⭐' : r.wpm >= 65 ? '⭐⭐' : '⭐';
-      const badgeCls = isVoice ? 'badge-blue' : r.wpm >= 90 ? 'badge-gold' : r.wpm >= 60 ? 'badge-blue' : 'badge-gray';
-      const score = isVoice
-        ? `<span class="badge badge-blue">🎙 ${r.accuracy != null ? r.accuracy + '%' : 'voice'}</span>`
-        : `<span class="badge ${badgeCls}">${r.wpm} WPM</span>`;
-      const time = new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const [hi, mid] = getAgeConfig(activeProfile.age).stars;
+      const stars = isVoice ? '' : r.wpm >= hi ? '⭐⭐⭐' : r.wpm >= mid ? '⭐⭐' : '⭐';
+      const badgeCls = isVoice ? 'badge-blue' : r.wpm >= hi ? 'badge-gold' : r.wpm >= mid ? 'badge-blue' : 'badge-gray';
+      const score = isVoice ? `<span class="badge badge-blue">🎙 ${r.accuracy != null ? r.accuracy + '%' : 'voice'}</span>` : `<span class="badge ${badgeCls}">${r.wpm} WPM</span>`;
+      const time = new Date(r.created_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
       return `<tr><td>${r.passage_title}</td><td>${score}</td><td>${stars}</td><td style="color:var(--muted)">${time}</td></tr>`;
     }).join('') + '</tbody></table>';
   document.getElementById('clear-history-row').style.display = 'flex';
 }
 async function clearHistory() {
-  if (!confirm('Clear all your scores? This cannot be undone.')) return;
+  if (!confirm('Clear all scores for this profile?')) return;
   try {
-    await api('DELETE', `/api/history/${USER_ID}`);
-    renderHistory([]);
-    showToast('🗑 All scores cleared');
-  } catch {
-    showToast('⚠️ Could not clear scores');
-  }
+    await api('DELETE', `/api/history/${USER_ID}?profileId=${activeProfile.id}`);
+    renderHistory([]); showToast('🗑 Scores cleared');
+  } catch { showToast('⚠️ Could not clear scores'); }
 }
 
 // ── Start ──────────────────────────────────────────────────────────────────
