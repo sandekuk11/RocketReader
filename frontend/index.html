@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Rocket 📚</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F0F8FF; --card: #fff; --text: #2D3436; --muted: #636E72; --radius: 16px;
+    }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .app { max-width: 700px; margin: 0 auto; padding: 16px; }
+    .header { text-align: center; padding: 20px 0 8px; }
+    .header h1 { font-family: 'Fredoka One', cursive; font-size: 34px; color: #1565C0; }
+    .header p { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+    .tabs { display: flex; gap: 6px; margin: 14px 0; background: #e3eaf5; border-radius: 40px; padding: 4px; }
+    .tab { flex: 1; padding: 9px 4px; border: none; border-radius: 36px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
+    .tab.active { background: #1565C0; color: #fff; }
+    .card { background: var(--card); border-radius: var(--radius); border: 1.5px solid #D0E4F7; padding: 18px; margin-bottom: 12px; }
+    .section-title { font-family: 'Fredoka One', cursive; font-size: 19px; color: #1565C0; margin-bottom: 10px; }
+    .passage-selector { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+    .passage-btn { padding: 6px 14px; border-radius: 20px; border: 2px solid #B3D0EE; background: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; color: #1565C0; transition: all 0.15s; }
+    .passage-btn.active, .passage-btn:hover { background: #1565C0; color: #fff; border-color: #1565C0; }
+    .passage-text { font-size: 17px; line-height: 1.9; color: var(--text); font-weight: 600; min-height: 70px; }
+    .meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .word-count { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .timer-display { font-family: 'Fredoka One', cursive; font-size: 32px; color: #1565C0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 24px; border-radius: 40px; border: none; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary { background: #1565C0; color: #fff; box-shadow: 0 4px 0 #0D47A1; }
+    .btn-primary:hover:not(:disabled) { background: #1976D2; }
+    .btn-danger { background: #E53935; color: #fff; box-shadow: 0 4px 0 #B71C1C; }
+    .btn-sun { background: #FFB300; color: #5D4037; box-shadow: 0 4px 0 #F57F17; }
+    .btn-green { background: #43A047; color: #fff; box-shadow: 0 4px 0 #2E7D32; }
+    .btn-outline { background: transparent; color: #E53935; border: 2px solid #E53935; box-shadow: none; }
+    .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+    .progress-bar-wrap { background: #e3eaf5; border-radius: 20px; height: 12px; overflow: hidden; margin: 8px 0; }
+    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #42A5F5, #1565C0); transition: width 0.3s; }
+    .result-card { text-align: center; padding: 8px 0; }
+    .wpm-number { font-family: 'Fredoka One', cursive; font-size: 68px; color: #1565C0; line-height: 1; }
+    .wpm-label { font-size: 13px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+    .stars { font-size: 36px; letter-spacing: 4px; margin: 6px 0; }
+    .feedback-msg { font-size: 17px; font-weight: 800; color: #1565C0; margin-bottom: 4px; }
+    .feedback-sub { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history-table th { color: var(--muted); font-weight: 700; padding: 7px 8px; text-align: left; border-bottom: 1.5px solid #D0E4F7; }
+    .history-table td { padding: 7px 8px; border-bottom: 1px solid #EFF4FA; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-gold { background: #FFF8E1; color: #F57F17; }
+    .badge-blue { background: #E3F2FD; color: #1565C0; }
+    .badge-gray { background: #F5F5F5; color: #757575; }
+    .stat-grid { display: flex; gap: 10px; }
+    .stat-box { flex: 1; text-align: center; border-radius: 12px; padding: 12px; }
+    .stat-label { font-size: 10px; font-weight: 800; margin-bottom: 4px; }
+    .stat-val { font-family: 'Fredoka One', cursive; font-size: 28px; }
+    .hidden { display: none !important; }
+    .api-key-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .api-key-row input { flex: 1; padding: 9px 14px; border-radius: 12px; border: 1.5px solid #B3D0EE; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 600; outline: none; }
+    .api-key-row input:focus { border-color: #1565C0; }
+    .mic-status { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: #F3F8FF; border: 1.5px solid #D0E4F7; margin-bottom: 12px; font-size: 14px; font-weight: 700; }
+    .mic-dot { width: 12px; height: 12px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+    .mic-dot.listening { background: #E53935; animation: pulse 1s infinite; }
+    .mic-dot.done { background: #43A047; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .transcript-box { background: #F8FBFF; border: 1.5px dashed #B3D0EE; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; line-height: 1.7; min-height: 80px; color: var(--text); margin-bottom: 12px; white-space: pre-wrap; }
+    .transcript-placeholder { color: #aab; font-style: italic; }
+    .analysis-box { background: #F0F8FF; border-radius: 12px; border: 1.5px solid #B3D0EE; padding: 16px; font-size: 14px; line-height: 1.8; font-weight: 600; }
+    .analysis-box h3 { font-family: 'Fredoka One', cursive; font-size: 18px; color: #1565C0; margin-bottom: 8px; }
+    .analysis-loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; font-weight: 700; padding: 10px 0; }
+    .spinner { width: 20px; height: 20px; border: 3px solid #D0E4F7; border-top-color: #1565C0; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .score-pill { display: inline-block; padding: 4px 14px; border-radius: 20px; font-weight: 800; font-size: 15px; margin-bottom: 10px; }
+    .score-high { background: #E8F5E9; color: #2E7D32; }
+    .score-mid  { background: #FFF8E1; color: #F57F17; }
+    .score-low  { background: #FFF3E0; color: #E65100; }
+    .voice-passage-text { font-size: 17px; line-height: 1.9; font-weight: 600; color: var(--text); background: #fff; border-radius: 10px; padding: 14px; border: 1.5px solid #D0E4F7; margin-bottom: 12px; }
+    .info-note { font-size: 12px; color: var(--muted); font-weight: 600; background: #F5F5F5; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    .toast.show { opacity: 1; }
+    @media (max-width: 480px) {
+      .header h1 { font-size: 27px; }
+      .passage-text { font-size: 15px; }
+      .wpm-number { font-size: 54px; }
+      .tab { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>📚 Reading Rocket</h1>
+    <p>Let's train your brain to read faster!</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('speed')">⏱ Speed Test</button>
+    <button class="tab" onclick="switchTab('voice')">🎙 Voice Analysis</button>
+    <button class="tab" onclick="switchTab('flash')">⚡ Flash Trainer</button>
+    <button class="tab" onclick="switchTab('history')">🏆 My Scores</button>
+  </div>
+
+  <!-- ══════════ SPEED TEST ══════════ -->
+  <div id="tab-speed">
+    <div class="card">
+      <div class="section-title">Pick a story</div>
+      <div class="passage-selector" id="passage-selector"></div>
+    </div>
+    <div class="card" id="reading-card">
+      <div class="meta-row">
+        <span class="word-count" id="word-count-label"></span>
+        <span class="timer-display" id="timer-display">0:00</span>
+      </div>
+      <div class="progress-bar-wrap" id="progress-wrap" style="display:none">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="passage-text" id="passage-display"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="start-btn" onclick="startTest()">▶ Start Reading</button>
+      </div>
+    </div>
+    <div class="card hidden" id="result-card">
+      <div class="result-card">
+        <div class="wpm-label">WORDS PER MINUTE</div>
+        <div class="wpm-number" id="result-wpm">—</div>
+        <div class="stars" id="result-stars">⭐</div>
+        <div class="feedback-msg" id="result-msg"></div>
+        <div class="feedback-sub" id="result-sub"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sun" onclick="tryAgain()">🔄 Try Again</button>
+        <button class="btn btn-primary" onclick="nextPassage()">Next Story ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ VOICE ANALYSIS ══════════ -->
+  <div id="tab-voice" class="hidden">
+
+    <div class="card">
+      <div class="section-title">🔑 Your Claude API Key</div>
+      <div class="info-note">
+        Your key is encrypted and stored securely on our server — never in plain text.
+        Get yours at <a href="https://console.anthropic.com" target="_blank" style="color:#1565C0;">console.anthropic.com</a>
+      </div>
+      <div id="api-key-saved-banner" class="hidden" style="background:#E8F5E9;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#2E7D32;margin-bottom:12px;">
+        ✅ API key saved — <span id="api-key-masked"></span>
+        <button onclick="showKeyInput()" style="margin-left:10px;background:none;border:none;color:#1565C0;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Change</button>
+      </div>
+      <div id="api-key-form">
+        <div class="api-key-row">
+          <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+          <button class="btn btn-primary" style="padding:9px 18px;font-size:13px;" onclick="saveApiKey()">Save</button>
+        </div>
+        <div id="api-key-status" style="font-size:13px; color:var(--muted); font-weight:700;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Pick a story to read aloud</div>
+      <div class="passage-selector" id="voice-passage-selector"></div>
+      <div class="voice-passage-text" id="voice-passage-display"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🎙 Record &amp; Analyze</div>
+      <div class="info-note">Click <strong>Start Recording</strong>, read the story out loud, then click <strong>Stop &amp; Analyze</strong>. Claude will listen and give feedback!</div>
+
+      <div class="mic-status" id="mic-status">
+        <div class="mic-dot" id="mic-dot"></div>
+        <span id="mic-label">Ready to record</span>
+      </div>
+
+      <div id="transcript-wrap">
+        <div style="font-size:12px; color:var(--muted); font-weight:700; margin-bottom:6px;">WHAT I HEARD:</div>
+        <div class="transcript-box" id="transcript-box">
+          <span class="transcript-placeholder">Your words will appear here as you read…</span>
+        </div>
+      </div>
+
+      <div class="btn-row" id="voice-btn-row">
+        <button class="btn btn-green" id="record-btn" onclick="toggleRecording()">🎙 Start Recording</button>
+        <button class="btn btn-primary hidden" id="analyze-btn" onclick="analyzeReading()">🤖 Analyze with Claude</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="analysis-card">
+      <div class="section-title">🤖 Claude's Feedback</div>
+      <div id="analysis-content"></div>
+      <div class="btn-row">
+        <button class="btn btn-sun" onclick="resetVoice()">🔄 Try Again</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ FLASH TRAINER ══════════ -->
+  <div id="tab-flash" class="hidden">
+    <div class="card">
+      <div class="section-title">⚡ Flash Trainer</div>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:12px; font-weight:600; line-height:1.6;">Words flash one at a time. Try to read each one as fast as you can!</p>
+      <div style="display:flex; align-items:center; gap:10px; margin:12px 0;">
+        <label style="font-size:13px;color:var(--muted);font-weight:700;min-width:60px;">Speed</label>
+        <input type="range" min="1" max="5" value="2" step="1" id="flash-speed" oninput="updateFlashSpeed()" style="flex:1;" />
+        <span style="font-size:14px;font-weight:800;color:#1565C0;min-width:90px;text-align:right;" id="flash-speed-label">Slow</span>
+      </div>
+      <div class="passage-selector" id="flash-passage-selector"></div>
+      <div style="min-height:140px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:46px;color:#1565C0;text-align:center;" id="flash-display">
+        <span style="font-family:'Nunito',sans-serif;font-size:16px;color:var(--muted);font-weight:700;">Press Start to begin!</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="flash-progress" style="width:0%"></div></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="flash-start-btn" onclick="startFlash()">▶ Start</button>
+        <button class="btn btn-danger hidden" id="flash-stop-btn" onclick="stopFlash()">■ Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ HISTORY ══════════ -->
+  <div id="tab-history" class="hidden">
+    <div class="card" id="avg-card" style="display:none; margin-bottom:12px;">
+      <div class="stat-grid">
+        <div class="stat-box" style="background:#E3F2FD;"><div class="stat-label" style="color:#1565C0;">BEST WPM</div><div class="stat-val" style="color:#1565C0;" id="stat-best">—</div></div>
+        <div class="stat-box" style="background:#E8F5E9;"><div class="stat-label" style="color:#2E7D32;">AVERAGE WPM</div><div class="stat-val" style="color:#43A047;" id="stat-avg">—</div></div>
+        <div class="stat-box" style="background:#FFF8E1;"><div class="stat-label" style="color:#F57F17;">TESTS DONE</div><div class="stat-val" style="color:#FFB300;" id="stat-count">0</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">🏆 My Reading Scores</div>
+      <div id="history-content">
+        <div class="analysis-loading" style="justify-content:center;padding:24px 0;">
+          <div class="spinner"></div><span>Loading scores…</span>
+        </div>
+      </div>
+      <div class="btn-row" id="clear-history-row" style="display:none;">
+        <button class="btn btn-outline" style="font-size:13px;padding:8px 18px;" onclick="clearHistory()">🗑 Clear All Scores</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG — replace with your deployed Render URL ──────────────────────────
+const BACKEND_URL = 'https://reading-rocket-backend.onrender.com';
+
+const PASSAGES = [
+  { title:"🐶 The Dog",    text:"The dog ran fast across the green yard. He jumped over the big log and splashed into the cool pond. His tail wagged as he shook the water off his fur. The boy laughed and gave him a treat. They played all afternoon until the sun went down. The dog curled up by the fire and fell fast asleep." },
+  { title:"🌙 The Moon",   text:"The moon lights up the dark sky at night. It glows bright and big when it is full. Some nights it looks like a thin smile. Stars twinkle all around it. Long ago, people told stories about the man in the moon. Owls hoot and frogs sing when the moon is out. It is one of the most beautiful things in the whole sky." },
+  { title:"🦋 A Butterfly",text:"A tiny egg sits on a green leaf. Soon a small caterpillar comes out. It eats and eats every day. Then it spins a cozy cocoon around itself. Inside, something amazing happens. Slowly, wings begin to grow. One day, a beautiful butterfly breaks free. It spreads its bright wings and flies up into the warm sunny sky." },
+  { title:"🏔 The Hike",   text:"Max and his dad put on their boots and backpacks. They started up the rocky trail early in the morning. Birds sang in the tall pine trees. Max spotted a deer drinking from a stream. His legs got tired but he kept going. At the top of the hill they could see for miles. Dad gave him a high five. Max felt proud and happy." },
+  { title:"🍕 Pizza Night",text:"Friday is pizza night at our house. Mom stretches the dough into a big circle. My brother and I put on the sauce. Then we add cheese, pepperoni, and olives. Dad slides it into the hot oven. We wait and wait while the whole kitchen smells amazing. The timer beeps and out comes a perfect golden pizza. Everyone grabs a slice and we eat together." }
+];
+
+const SPEED_LABELS = ['Very Slow','Slow','Normal','Fast','Super Fast'];
+const SPEED_MS     = [900,600,400,280,180];
+
+// ── User identity (UUID stored in localStorage) ───────────────────────────
+function getOrCreateUserId() {
+  let id = localStorage.getItem('rocketreader_user_id');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('rocketreader_user_id', id);
+  }
+  return id;
+}
+const USER_ID = getOrCreateUserId();
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(BACKEND_URL + path, opts);
+  return res.json();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function initApp() {
+  // Register user in DB (idempotent)
+  try { await api('POST', '/api/users', { userId: USER_ID }); } catch {}
+
+  // Check if the user already has a saved API key
+  try {
+    const data = await api('GET', `/api/keys/${USER_ID}`);
+    if (data.hasKey) {
+      document.getElementById('api-key-masked').textContent = data.masked;
+      document.getElementById('api-key-saved-banner').classList.remove('hidden');
+      document.getElementById('api-key-form').classList.add('hidden');
+    }
+  } catch {}
+
+  buildSelector('passage-selector', renderPassage);
+  renderPassage();
+  updateFlashSpeed();
+}
+
+// ── Shared helpers ─────────────────────────────────────────────────────────
+let currentPassageIdx = 0;
+
+function buildSelector(id, cb) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  PASSAGES.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'passage-btn' + (i === currentPassageIdx ? ' active' : '');
+    b.textContent = p.title;
+    b.onclick = () => { currentPassageIdx = i; cb(); };
+    el.appendChild(b);
+  });
+}
+function highlightSelector(id) {
+  document.querySelectorAll('#' + id + ' .passage-btn').forEach((b, i) => b.classList.toggle('active', i === currentPassageIdx));
+}
+function switchTab(tab) {
+  ['speed','voice','flash','history'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ['speed','voice','flash','history'][i] === tab));
+  if (tab === 'history') loadHistory();
+  if (tab === 'flash') { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
+  if (tab === 'voice') { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
+}
+
+// ── Speed Test ─────────────────────────────────────────────────────────────
+let timerInterval = null, startTime = null, testState = 'idle';
+
+function renderPassage() {
+  resetTest();
+  highlightSelector('passage-selector');
+  const words = PASSAGES[currentPassageIdx].text.split(' ');
+  document.getElementById('word-count-label').textContent = words.length + ' words';
+  document.getElementById('passage-display').innerHTML = words.map(w => `<span>${w} </span>`).join('');
+  document.getElementById('result-card').classList.add('hidden');
+  document.getElementById('reading-card').classList.remove('hidden');
+  document.getElementById('start-btn').textContent = '▶ Start Reading';
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('timer-display').textContent = '0:00';
+}
+function startTest() {
+  if (testState === 'idle') {
+    testState = 'reading';
+    document.getElementById('start-btn').textContent = '✅ Done Reading';
+    document.getElementById('progress-wrap').style.display = 'block';
+    startTime = Date.now();
+    timerInterval = setInterval(tickTimer, 100);
+  } else if (testState === 'reading') { finishTest(); }
+}
+function tickTimer() {
+  const e = (Date.now() - startTime) / 1000;
+  const m = Math.floor(e / 60), s = Math.floor(e % 60);
+  document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2, '0');
+  const wc = PASSAGES[currentPassageIdx].text.split(' ').length;
+  document.getElementById('progress-bar').style.width = Math.min((e / (wc / 2)) * 100, 95) + '%';
+}
+async function finishTest() {
+  clearInterval(timerInterval); testState = 'done';
+  const elapsed = (Date.now() - startTime) / 1000;
+  const words = PASSAGES[currentPassageIdx].text.split(' ').length;
+  const wpm = Math.round((words / elapsed) * 60);
+  const title = PASSAGES[currentPassageIdx].title;
+
+  document.getElementById('reading-card').classList.add('hidden');
+  document.getElementById('result-card').classList.remove('hidden');
+  document.getElementById('result-wpm').textContent = wpm;
+
+  let stars, msg, sub;
+  if (wpm >= 120) { stars='⭐⭐⭐'; msg='You are a Reading Rocket! 🚀'; sub='Wow, that is super fast! Amazing job!'; }
+  else if (wpm >= 90) { stars='⭐⭐⭐'; msg='Excellent reader! 🌟'; sub='You read really well! Keep it up!'; }
+  else if (wpm >= 65) { stars='⭐⭐'; msg='Great job! 😊'; sub='You are getting faster! Try again to beat your score.'; }
+  else if (wpm >= 45) { stars='⭐⭐'; msg='Good reading! 👍'; sub='Nice work! Practice makes perfect.'; }
+  else { stars='⭐'; msg='Keep practicing! 💪'; sub='Every time you practice, you get faster. You can do it!'; }
+  document.getElementById('result-stars').textContent = stars;
+  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('result-sub').textContent = sub;
+
+  try {
+    await api('POST', '/api/history', { userId: USER_ID, passageTitle: title, wpm, testType: 'speed' });
+  } catch {}
+}
+function tryAgain() { testState = 'idle'; renderPassage(); }
+function nextPassage() { currentPassageIdx = (currentPassageIdx + 1) % PASSAGES.length; testState = 'idle'; renderPassage(); buildSelector('passage-selector', renderPassage); }
+function resetTest() { clearInterval(timerInterval); testState = 'idle'; startTime = null; }
+
+// ── Voice Analysis ─────────────────────────────────────────────────────────
+let recognition = null, isRecording = false, liveTranscript = '';
+
+function showKeyInput() {
+  document.getElementById('api-key-saved-banner').classList.add('hidden');
+  document.getElementById('api-key-form').classList.remove('hidden');
+}
+async function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const st = document.getElementById('api-key-status');
+  if (!key) return;
+  if (!key.startsWith('sk-ant-')) {
+    st.textContent = '⚠️ Key must start with sk-ant-'; st.style.color = '#F57F17'; return;
+  }
+  st.textContent = 'Saving…'; st.style.color = 'var(--muted)';
+  try {
+    const res = await api('POST', '/api/keys', { userId: USER_ID, apiKey: key });
+    if (res.error) { st.textContent = '⚠️ ' + res.error; st.style.color = '#E53935'; return; }
+    document.getElementById('api-key-input').value = '';
+    document.getElementById('api-key-masked').textContent = key.slice(0, 10) + '...' + key.slice(-4);
+    document.getElementById('api-key-saved-banner').classList.remove('hidden');
+    document.getElementById('api-key-form').classList.add('hidden');
+    st.textContent = '';
+    showToast('✅ API key saved securely!');
+  } catch {
+    st.textContent = '⚠️ Could not reach server. Try again.'; st.style.color = '#E53935';
+  }
+}
+
+function renderVoicePassage() {
+  highlightSelector('voice-passage-selector');
+  document.getElementById('voice-passage-display').textContent = PASSAGES[currentPassageIdx].text;
+}
+function toggleRecording() {
+  if (!isRecording) startRecording(); else stopRecording();
+}
+function startRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Sorry! Your browser does not support voice recording. Please try Chrome or Safari.'); return; }
+  liveTranscript = '';
+  recognition = new SR();
+  recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true;
+  recognition.onresult = (e) => {
+    let final = '', interim = '';
+    for (let i = 0; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    liveTranscript = final;
+    const box = document.getElementById('transcript-box');
+    box.innerHTML = '';
+    box.textContent = final + interim;
+  };
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') alert('Microphone access was denied. Please allow access and try again.');
+  };
+  recognition.start();
+  isRecording = true;
+  document.getElementById('mic-dot').className = 'mic-dot listening';
+  document.getElementById('mic-label').textContent = '🔴 Listening… read the story out loud!';
+  document.getElementById('record-btn').textContent = '⏹ Stop Recording';
+  document.getElementById('record-btn').className = 'btn btn-danger';
+  document.getElementById('analysis-card').classList.add('hidden');
+}
+function stopRecording() {
+  if (recognition) recognition.stop();
+  isRecording = false;
+  document.getElementById('mic-dot').className = 'mic-dot done';
+  document.getElementById('mic-label').textContent = '✅ Recording complete!';
+  document.getElementById('record-btn').textContent = '🎙 Record Again';
+  document.getElementById('record-btn').className = 'btn btn-green';
+  if (liveTranscript.trim()) document.getElementById('analyze-btn').classList.remove('hidden');
+}
+async function analyzeReading() {
+  const transcript = liveTranscript.trim();
+  if (!transcript) { alert('No speech was recorded. Please try recording again.'); return; }
+
+  const passageTitle = PASSAGES[currentPassageIdx].title;
+  const expectedText = PASSAGES[currentPassageIdx].text;
+
+  document.getElementById('analysis-card').classList.remove('hidden');
+  document.getElementById('analysis-content').innerHTML = `
+    <div class="analysis-loading">
+      <div class="spinner"></div>
+      <span>Claude is reading your performance… just a moment!</span>
+    </div>`;
+  document.getElementById('analyze-btn').disabled = true;
+
+  try {
+    const res = await api('POST', '/api/analyze', { userId: USER_ID, passageTitle, expectedText, transcript });
+    if (res.error) throw new Error(res.error);
+
+    const raw = res.content[0].text;
+    const r = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    const pct = r.accuracy_score;
+    const pillClass = pct >= 80 ? 'score-high' : pct >= 60 ? 'score-mid' : 'score-low';
+    const emoji = pct >= 80 ? '🌟' : pct >= 60 ? '😊' : '💪';
+
+    document.getElementById('analysis-content').innerHTML = `
+      <div style="text-align:center; margin-bottom:14px;">
+        <span class="score-pill ${pillClass}">${emoji} Accuracy: ${pct}%</span>
+        <div style="font-size:13px;color:var(--muted);font-weight:700;margin-top:4px;">Fluency: ${r.fluency_rating} &nbsp;·&nbsp; ${r.words_correct} / ${r.words_total} words</div>
+      </div>
+      <div class="analysis-box">
+        <h3>🌟 What went well</h3>
+        <p style="margin-bottom:12px;">${r.what_went_well}</p>
+        ${r.missed_or_wrong_words && r.missed_or_wrong_words.length ? `
+        <h3>📝 Words to practice</h3>
+        <p style="margin-bottom:12px;">${r.missed_or_wrong_words.map(w=>`<span style="background:#FFF8E1;color:#F57F17;padding:2px 8px;border-radius:8px;font-weight:800;margin:2px;display:inline-block;">${w}</span>`).join(' ')}</p>` : ''}
+        <h3>💡 Tips for next time</h3>
+        <p style="margin-bottom:12px;">${r.areas_to_practice}</p>
+        <div style="text-align:center;font-size:18px;font-weight:800;color:#1565C0;padding:10px;background:#E3F2FD;border-radius:12px;">${r.fun_encouragement}</div>
+      </div>`;
+
+    try {
+      await api('POST', '/api/history', { userId: USER_ID, passageTitle, accuracy: pct, testType: 'voice' });
+    } catch {}
+
+  } catch (err) {
+    document.getElementById('analysis-content').innerHTML = `
+      <div style="background:#FFF3E0;border-radius:12px;padding:16px;color:#E65100;font-weight:700;">
+        ⚠️ Could not get analysis: ${err.message}<br>
+        <span style="font-size:13px;color:var(--muted);">Make sure your API key is saved and try again.</span>
+      </div>`;
+  }
+  document.getElementById('analyze-btn').disabled = false;
+}
+function resetVoice() {
+  liveTranscript = ''; isRecording = false;
+  if (recognition) { try { recognition.stop(); } catch {} }
+  document.getElementById('mic-dot').className = 'mic-dot';
+  document.getElementById('mic-label').textContent = 'Ready to record';
+  document.getElementById('record-btn').textContent = '🎙 Start Recording';
+  document.getElementById('record-btn').className = 'btn btn-green';
+  document.getElementById('transcript-box').innerHTML = '<span class="transcript-placeholder">Your words will appear here as you read…</span>';
+  document.getElementById('analyze-btn').classList.add('hidden');
+  document.getElementById('analysis-card').classList.add('hidden');
+}
+
+// ── Flash Trainer ──────────────────────────────────────────────────────────
+let flashInterval = null, flashWords = [], flashIdx = 0;
+
+function initFlashPassage() {
+  stopFlash(); flashWords = []; flashIdx = 0;
+  document.getElementById('flash-display').innerHTML = '<span style="font-family:\'Nunito\',sans-serif;font-size:16px;color:var(--muted);font-weight:700;">Press Start to begin!</span>';
+  document.getElementById('flash-progress').style.width = '0%';
+  highlightSelector('flash-passage-selector');
+}
+function updateFlashSpeed() {
+  const v = parseInt(document.getElementById('flash-speed').value);
+  document.getElementById('flash-speed-label').textContent = SPEED_LABELS[v - 1];
+}
+function startFlash() {
+  stopFlash();
+  flashWords = PASSAGES[currentPassageIdx].text.split(' '); flashIdx = 0;
+  document.getElementById('flash-start-btn').classList.add('hidden');
+  document.getElementById('flash-stop-btn').classList.remove('hidden');
+  const ms = SPEED_MS[parseInt(document.getElementById('flash-speed').value) - 1];
+  showFlashWord();
+  flashInterval = setInterval(() => {
+    flashIdx++;
+    if (flashIdx >= flashWords.length) {
+      stopFlash();
+      document.getElementById('flash-display').innerHTML = '<span style="font-size:36px;">🎉 All done! Great job!</span>';
+      document.getElementById('flash-progress').style.width = '100%';
+    } else { showFlashWord(); }
+  }, ms);
+}
+function showFlashWord() {
+  document.getElementById('flash-display').textContent = flashWords[flashIdx];
+  document.getElementById('flash-progress').style.width = Math.round((flashIdx / flashWords.length) * 100) + '%';
+}
+function stopFlash() {
+  clearInterval(flashInterval);
+  document.getElementById('flash-start-btn').classList.remove('hidden');
+  document.getElementById('flash-stop-btn').classList.add('hidden');
+}
+
+// ── History ────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const el = document.getElementById('history-content');
+  el.innerHTML = '<div class="analysis-loading" style="justify-content:center;padding:24px 0;"><div class="spinner"></div><span>Loading scores…</span></div>';
+  document.getElementById('clear-history-row').style.display = 'none';
+
+  try {
+    const data = await api('GET', `/api/history/${USER_ID}`);
+    renderHistory(data.history || []);
+  } catch {
+    el.innerHTML = '<p style="color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:24px 0;">Could not load scores. Check your connection. 🔌</p>';
+  }
+}
+function renderHistory(history) {
+  const el = document.getElementById('history-content');
+  const speedHistory = history.filter(r => r.test_type === 'speed' && r.wpm);
+  if (!history.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:24px 0;">No scores yet! Do a Speed Test first. 🚀</p>';
+    document.getElementById('avg-card').style.display = 'none';
+    document.getElementById('clear-history-row').style.display = 'none';
+    return;
+  }
+  if (speedHistory.length) {
+    const avg = Math.round(speedHistory.reduce((s, r) => s + r.wpm, 0) / speedHistory.length);
+    const best = Math.max(...speedHistory.map(r => r.wpm));
+    document.getElementById('stat-best').textContent = best;
+    document.getElementById('stat-avg').textContent = avg;
+    document.getElementById('stat-count').textContent = speedHistory.length;
+    document.getElementById('avg-card').style.display = 'block';
+  }
+  el.innerHTML = '<table class="history-table"><thead><tr><th>Story</th><th>Score</th><th>Stars</th><th>Time</th></tr></thead><tbody>' +
+    history.map(r => {
+      const isVoice = r.test_type === 'voice';
+      const stars = isVoice ? '' : r.wpm >= 90 ? '⭐⭐⭐' : r.wpm >= 65 ? '⭐⭐' : '⭐';
+      const badgeCls = isVoice ? 'badge-blue' : r.wpm >= 90 ? 'badge-gold' : r.wpm >= 60 ? 'badge-blue' : 'badge-gray';
+      const score = isVoice
+        ? `<span class="badge badge-blue">🎙 ${r.accuracy != null ? r.accuracy + '%' : 'voice'}</span>`
+        : `<span class="badge ${badgeCls}">${r.wpm} WPM</span>`;
+      const time = new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return `<tr><td>${r.passage_title}</td><td>${score}</td><td>${stars}</td><td style="color:var(--muted)">${time}</td></tr>`;
+    }).join('') + '</tbody></table>';
+  document.getElementById('clear-history-row').style.display = 'flex';
+}
+async function clearHistory() {
+  if (!confirm('Clear all your scores? This cannot be undone.')) return;
+  try {
+    await api('DELETE', `/api/history/${USER_ID}`);
+    renderHistory([]);
+    showToast('🗑 All scores cleared');
+  } catch {
+    showToast('⚠️ Could not clear scores');
+  }
+}
+
+// ── Start ──────────────────────────────────────────────────────────────────
+initApp();
+</script>
+</body>
+</html>

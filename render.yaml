@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: reading-rocket-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false        # set manually in Render dashboard
+      - key: SUPABASE_SERVICE_KEY
+        sync: false        # set manually in Render dashboard
+      - key: ENCRYPTION_KEY
+        generateValue: true  # Render auto-generates a random value
+      - key: FRONTEND_URL
+        sync: false        # set to your Vercel URL after deploying frontend
