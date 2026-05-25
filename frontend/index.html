@@ -529,13 +529,25 @@ async function saveProfile() {
 
   try {
     if (editingProfileId) {
-      await api('PUT', `/api/profiles/${editingProfileId}`, { name, age, color: selectedColor });
+      const res = await api('PUT', `/api/profiles/${editingProfileId}`, { name, age, color: selectedColor });
+      closeProfileModal();
+      // If editing the active profile, refresh it in place
+      if (activeProfile && activeProfile.id === editingProfileId && res.profile) {
+        activeProfile = res.profile;
+        document.getElementById('badge-avatar').textContent = res.profile.name[0].toUpperCase();
+        document.getElementById('badge-avatar').style.background = res.profile.color;
+        document.getElementById('badge-name').textContent = res.profile.name;
+        document.getElementById('badge-level').textContent = levelLabel(res.profile.age);
+      }
+      await refreshProfiles();
+      showToast('✅ Profile updated!');
     } else {
-      await api('POST', '/api/profiles', { userId: USER_ID, name, age, color: selectedColor });
+      const res = await api('POST', '/api/profiles', { userId: USER_ID, name, age, color: selectedColor });
+      if (res.error) { errEl.textContent = res.error; return; }
+      closeProfileModal();
+      showToast(`🎉 Welcome, ${name}!`);
+      selectProfile(res.profile); // go straight into the app
     }
-    closeProfileModal();
-    await refreshProfiles();
-    showToast(editingProfileId ? '✅ Profile updated!' : `🎉 Welcome, ${name}!`);
   } catch {
     errEl.textContent = 'Could not save. Try again.';
   }
