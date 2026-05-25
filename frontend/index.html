@@ -249,13 +249,29 @@
 // ── CONFIG — replace with your deployed Render URL ──────────────────────────
 const BACKEND_URL = 'https://reading-rocket-backend.onrender.com';
 
-const PASSAGES = [
-  { title:"🐶 The Dog",    text:"The dog ran fast across the green yard. He jumped over the big log and splashed into the cool pond. His tail wagged as he shook the water off his fur. The boy laughed and gave him a treat. They played all afternoon until the sun went down. The dog curled up by the fire and fell fast asleep." },
-  { title:"🌙 The Moon",   text:"The moon lights up the dark sky at night. It glows bright and big when it is full. Some nights it looks like a thin smile. Stars twinkle all around it. Long ago, people told stories about the man in the moon. Owls hoot and frogs sing when the moon is out. It is one of the most beautiful things in the whole sky." },
-  { title:"🦋 A Butterfly",text:"A tiny egg sits on a green leaf. Soon a small caterpillar comes out. It eats and eats every day. Then it spins a cozy cocoon around itself. Inside, something amazing happens. Slowly, wings begin to grow. One day, a beautiful butterfly breaks free. It spreads its bright wings and flies up into the warm sunny sky." },
-  { title:"🏔 The Hike",   text:"Max and his dad put on their boots and backpacks. They started up the rocky trail early in the morning. Birds sang in the tall pine trees. Max spotted a deer drinking from a stream. His legs got tired but he kept going. At the top of the hill they could see for miles. Dad gave him a high five. Max felt proud and happy." },
-  { title:"🍕 Pizza Night",text:"Friday is pizza night at our house. Mom stretches the dough into a big circle. My brother and I put on the sauce. Then we add cheese, pepperoni, and olives. Dad slides it into the hot oven. We wait and wait while the whole kitchen smells amazing. The timer beeps and out comes a perfect golden pizza. Everyone grabs a slice and we eat together." }
+const ALL_PASSAGES = [
+  { title:"🐶 The Dog",       text:"The dog ran fast across the green yard. He jumped over the big log and splashed into the cool pond. His tail wagged as he shook the water off his fur. The boy laughed and gave him a treat. They played all afternoon until the sun went down. The dog curled up by the fire and fell fast asleep." },
+  { title:"🌙 The Moon",      text:"The moon lights up the dark sky at night. It glows bright and big when it is full. Some nights it looks like a thin smile. Stars twinkle all around it. Long ago, people told stories about the man in the moon. Owls hoot and frogs sing when the moon is out. It is one of the most beautiful things in the whole sky." },
+  { title:"🦋 A Butterfly",   text:"A tiny egg sits on a green leaf. Soon a small caterpillar comes out. It eats and eats every day. Then it spins a cozy cocoon around itself. Inside, something amazing happens. Slowly, wings begin to grow. One day, a beautiful butterfly breaks free. It spreads its bright wings and flies up into the warm sunny sky." },
+  { title:"🏔 The Hike",      text:"Max and his dad put on their boots and backpacks. They started up the rocky trail early in the morning. Birds sang in the tall pine trees. Max spotted a deer drinking from a stream. His legs got tired but he kept going. At the top of the hill they could see for miles. Dad gave him a high five. Max felt proud and happy." },
+  { title:"🍕 Pizza Night",   text:"Friday is pizza night at our house. Mom stretches the dough into a big circle. My brother and I put on the sauce. Then we add cheese, pepperoni, and olives. Dad slides it into the hot oven. We wait and wait while the whole kitchen smells amazing. The timer beeps and out comes a perfect golden pizza. Everyone grabs a slice and we eat together." },
+  { title:"🌊 The Ocean",     text:"The ocean is wide and deep and full of life. Waves crash on the sandy shore all day long. Fish of every color swim below the surface. Dolphins leap and splash in the sunlight. Deep down, it is cold and very dark. Giant whales sing to each other across the water. The ocean is the biggest place on our whole planet." },
+  { title:"🚀 The Rocket",    text:"The rocket stood tall on the launch pad. Its engines roared and fire shot out below. It lifted off the ground very slowly at first. Then faster and faster it climbed into the sky. The astronauts inside felt a big push. Soon they were above the clouds and into space. Stars appeared all around them. Their adventure had just begun." },
+  { title:"🐝 The Bees",      text:"Bees are very busy insects. They fly from flower to flower all day long. They collect sweet nectar and carry it back to the hive. Inside, they make honey from the nectar. Each bee has an important job to do. Some guard the door. Some feed the babies. The queen bee lays all the eggs. Without bees, many plants could not grow." },
+  { title:"🌧 The Rain",      text:"Dark clouds rolled in over the hills. The wind picked up and the air felt cool. A rumble of thunder shook the sky. Then big raindrops began to fall. Puddles formed on the streets and in the yard. The garden soaked up the water it needed. After an hour the rain stopped. The sun came back out and a rainbow appeared in the sky." },
+  { title:"🦁 The Lion",      text:"The lion is known as the king of animals. It has a thick mane of fur around its face. Lions live on the grassy plains of Africa. They hunt together as a group called a pride. The females do most of the hunting at night. A lion's roar can be heard from very far away. Lion cubs love to play and tumble in the grass all day long." },
 ];
+
+// Shuffle a copy so order is different every page load
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const PASSAGES = shuffle(ALL_PASSAGES);
 
 const SPEED_LABELS = ['Very Slow','Slow','Normal','Fast','Super Fast'];
 const SPEED_MS     = [900,600,400,280,180];
