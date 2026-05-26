@@ -6,6 +6,14 @@
   <title>Reading Rocket 📚</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NMS3FGDEKQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-NMS3FGDEKQ');
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --bg: #F0F8FF; --card: #fff; --text: #2D3436; --muted: #636E72; --radius: 16px; }
@@ -385,6 +393,12 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const BACKEND_URL = 'https://reading-rocket-backend.onrender.com';
 
+// ── Analytics helper ───────────────────────────────────────────────────────
+function track(eventName, params = {}) {
+  if (typeof gtag === 'undefined') return;
+  gtag('event', eventName, params);
+}
+
 // ── PASSAGES BY AGE GROUP ──────────────────────────────────────────────────
 const PASSAGES_BEGINNER = [ // ages 4–6  (~40 words)
   { title:'🐱 My Cat',      text:'My cat is named Milo. He has soft orange fur and big green eyes. He likes to sleep in sunny spots. When he is happy he purrs very loudly. At night he curls up on my pillow. I love my cat so much.' },
@@ -552,6 +566,7 @@ function selectProfile(profile) {
 
   document.getElementById('profile-overlay').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
+  track('profile_selected', { age: profile.age, age_group: levelLabel(profile.age) });
 
   buildSelector('passage-selector', renderPassage);
   renderPassage();
@@ -615,6 +630,7 @@ async function saveProfile() {
       if (res.error) { errEl.textContent = res.error; return; }
       closeProfileModal();
       showToast(`🎉 Welcome, ${name}!`);
+      track('profile_created', { age, age_group: levelLabel(age) });
       selectProfile(res.profile); // go straight into the app
     }
   } catch {
@@ -640,6 +656,7 @@ function highlightSelector(id) {
 function switchTab(tab) {
   ['speed','voice','flash','math','history'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
   document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ['speed','voice','flash','math','history'][i] === tab));
+  track('tab_view', { tab_name: tab, profile_age: activeProfile?.age, age_group: activeProfile ? levelLabel(activeProfile.age) : null });
   if (tab === 'history') loadHistory();
   if (tab === 'flash')   { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
   if (tab === 'voice')   { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
@@ -697,6 +714,7 @@ async function finishTest() {
   document.getElementById('result-msg').textContent = msg;
   document.getElementById('result-sub').textContent = sub;
 
+  track('speed_test_complete', { wpm, passage: title, age: activeProfile.age, age_group: levelLabel(activeProfile.age), stars: stars.length });
   try { await api('POST', '/api/history', { userId: USER_ID, profileId: activeProfile.id, passageTitle: title, wpm, testType: 'speed' }); } catch {}
 }
 function tryAgain() { testState = 'idle'; renderPassage(); }
@@ -785,6 +803,7 @@ async function analyzeReading() {
       </div>`;
     lastAnalysis = r;
     document.getElementById('speak-btn').classList.remove('hidden');
+    track('voice_analysis_complete', { accuracy: pct, fluency: r.fluency_rating, passage: passageTitle, age: activeProfile.age, age_group: levelLabel(activeProfile.age) });
     try { await api('POST', '/api/history', { userId: USER_ID, profileId: activeProfile.id, passageTitle, accuracy: pct, testType: 'voice' }); } catch {}
   } catch (err) {
     document.getElementById('analysis-content').innerHTML = `<div style="background:#FFF3E0;border-radius:12px;padding:16px;color:#E65100;font-weight:700;">⚠️ ${err.message}<br><span style="font-size:13px;color:var(--muted);">Make sure your API key is saved.</span></div>`;
@@ -852,6 +871,7 @@ function initFlashPassage() {
 }
 function updateFlashSpeed() { document.getElementById('flash-speed-label').textContent = SPEED_LABELS[parseInt(document.getElementById('flash-speed').value) - 1]; }
 function startFlash() {
+  track('flash_trainer_start', { passage: PASSAGES[currentPassageIdx].title, speed: SPEED_LABELS[parseInt(document.getElementById('flash-speed').value)-1], age: activeProfile.age });
   stopFlash(); flashWords = PASSAGES[currentPassageIdx].text.split(' '); flashIdx = 0;
   document.getElementById('flash-start-btn').classList.add('hidden');
   document.getElementById('flash-stop-btn').classList.remove('hidden');
@@ -1060,6 +1080,7 @@ async function finishMath() {
   document.getElementById('math-result-msg').textContent      = msg;
 
   const opLabel = { all:'Mixed', add:'Addition', sub:'Subtraction', mul:'Multiplication', div:'Division' }[mathOp];
+  track('math_complete', { correct: mathCorrect, accuracy, qpm, operation: opLabel, avg_time_sec: parseFloat(avgTime.toFixed(1)), age: activeProfile.age, age_group: levelLabel(activeProfile.age) });
   try {
     await api('POST', '/api/history', {
       userId: USER_ID, profileId: activeProfile.id,
