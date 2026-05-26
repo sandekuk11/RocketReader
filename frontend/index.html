@@ -115,6 +115,18 @@
     .score-low  { background: #FFF3E0; color: #E65100; }
     .voice-passage-text { font-size: 17px; line-height: 1.9; font-weight: 600; color: var(--text); background: #fff; border-radius: 10px; padding: 14px; border: 1.5px solid #D0E4F7; margin-bottom: 12px; }
     .info-note { font-size: 12px; color: var(--muted); font-weight: 600; background: #F5F5F5; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+    /* ── Math Trainer ── */
+    .op-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .op-btn { padding: 7px 14px; border-radius: 20px; border: 2px solid #B3D0EE; background: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; color: #1565C0; transition: all 0.15s; }
+    .op-btn.active { background: #1565C0; color: #fff; border-color: #1565C0; }
+    .op-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .math-problem { font-family: 'Fredoka One', cursive; font-size: 58px; color: #1565C0; text-align: center; margin: 16px 0 4px; line-height: 1.1; }
+    .math-input { font-family: 'Fredoka One', cursive; font-size: 36px; color: #1565C0; width: 140px; text-align: center; padding: 10px; border-radius: 16px; border: 2.5px solid #B3D0EE; outline: none; -moz-appearance: textfield; }
+    .math-input::-webkit-inner-spin-button, .math-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .math-input:focus { border-color: #1565C0; }
+    .math-timer { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--muted); }
+    .math-correct { color: #43A047 !important; }
+    .math-wrong { color: #E53935 !important; }
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .toast.show { opacity: 1; }
     @media (max-width: 480px) {
@@ -180,10 +192,11 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('speed')">⏱ Speed Test</button>
-    <button class="tab" onclick="switchTab('voice')">🎙 Voice Analysis</button>
-    <button class="tab" onclick="switchTab('flash')">⚡ Flash Trainer</button>
-    <button class="tab" onclick="switchTab('history')">🏆 My Scores</button>
+    <button class="tab active" onclick="switchTab('speed')">⏱ Speed</button>
+    <button class="tab" onclick="switchTab('voice')">🎙 Voice</button>
+    <button class="tab" onclick="switchTab('flash')">⚡ Flash</button>
+    <button class="tab" onclick="switchTab('math')">🔢 Math</button>
+    <button class="tab" onclick="switchTab('history')">🏆 Scores</button>
   </div>
 
   <!-- SPEED TEST -->
@@ -287,6 +300,62 @@
       <div class="btn-row">
         <button class="btn btn-primary" id="flash-start-btn" onclick="startFlash()">▶ Start</button>
         <button class="btn btn-danger hidden" id="flash-stop-btn" onclick="stopFlash()">■ Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATH TRAINER -->
+  <div id="tab-math" class="hidden">
+    <div class="card">
+      <div class="section-title">🔢 Math Speed Trainer</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:14px;font-weight:600;line-height:1.6;">Solve 10 problems as fast as you can! Difficulty adjusts to your age.</p>
+      <div class="op-selector">
+        <button class="op-btn active" data-op="all" onclick="setOp('all')">🎲 Mixed</button>
+        <button class="op-btn" data-op="add" onclick="setOp('add')">➕ Addition</button>
+        <button class="op-btn" data-op="sub" onclick="setOp('sub')">➖ Subtraction</button>
+        <button class="op-btn" data-op="mul" onclick="setOp('mul')">✖ Multiply</button>
+        <button class="op-btn" data-op="div" onclick="setOp('div')">➗ Divide</button>
+      </div>
+      <!-- Idle -->
+      <div id="math-idle">
+        <div style="text-align:center;padding:20px 0 12px;">
+          <div style="font-family:'Fredoka One',cursive;font-size:52px;color:#1565C0;margin-bottom:8px;">🧮</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700;">10 problems · timed · auto-difficulty</div>
+        </div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="startMath()">▶ Start</button></div>
+      </div>
+      <!-- Playing -->
+      <div id="math-playing" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:13px;font-weight:800;color:var(--muted);">Problem <span id="math-q-num">1</span> / 10</span>
+          <span class="math-timer" id="math-timer">0.0s</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="math-progress" style="width:0%"></div></div>
+        <div class="math-problem" id="math-problem"></div>
+        <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:8px;">
+          <input type="number" id="math-answer" class="math-input" placeholder="?" onkeydown="onMathKey(event)" autocomplete="off" inputmode="numeric" />
+          <button class="btn btn-primary" style="padding:14px 20px;font-size:22px;" onclick="submitMathAnswer()">✓</button>
+        </div>
+        <div id="math-feedback" style="text-align:center;min-height:32px;margin-top:10px;font-size:18px;font-weight:800;"></div>
+      </div>
+    </div>
+    <!-- Results -->
+    <div class="card hidden" id="math-result-card">
+      <div class="section-title">🏅 Round Complete!</div>
+      <div style="text-align:center;padding:8px 0 16px;">
+        <div style="font-family:'Fredoka One',cursive;font-size:68px;color:#1565C0;line-height:1;" id="math-result-correct">—</div>
+        <div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:8px;">CORRECT OUT OF 10</div>
+        <div id="math-result-stars" style="font-size:36px;letter-spacing:4px;margin:6px 0;">⭐</div>
+        <div id="math-result-msg" style="font-size:17px;font-weight:800;color:#1565C0;margin-bottom:16px;"></div>
+      </div>
+      <div class="stat-grid" style="margin-bottom:16px;">
+        <div class="stat-box" style="background:#E3F2FD;"><div class="stat-label" style="color:#1565C0;">ACCURACY</div><div class="stat-val" style="color:#1565C0;" id="math-result-accuracy">—</div></div>
+        <div class="stat-box" style="background:#E8F5E9;"><div class="stat-label" style="color:#2E7D32;">AVG TIME</div><div class="stat-val" style="color:#43A047;font-size:22px;" id="math-result-avgtime">—</div></div>
+        <div class="stat-box" style="background:#FFF8E1;"><div class="stat-label" style="color:#F57F17;">Q / MIN</div><div class="stat-val" style="color:#FFB300;" id="math-result-qpm">—</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sun" onclick="resetMath()">🔄 Try Again</button>
+        <button class="btn btn-primary" onclick="switchTab('history')">📊 See Scores</button>
       </div>
     </div>
   </div>
@@ -569,11 +638,12 @@ function highlightSelector(id) {
   document.querySelectorAll('#' + id + ' .passage-btn').forEach((b, i) => b.classList.toggle('active', i === currentPassageIdx));
 }
 function switchTab(tab) {
-  ['speed','voice','flash','history'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
-  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ['speed','voice','flash','history'][i] === tab));
+  ['speed','voice','flash','math','history'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ['speed','voice','flash','math','history'][i] === tab));
   if (tab === 'history') loadHistory();
-  if (tab === 'flash') { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
-  if (tab === 'voice') { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
+  if (tab === 'flash')   { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
+  if (tab === 'voice')   { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
+  if (tab === 'math')    initMathTab();
 }
 
 // ── Speed Test ─────────────────────────────────────────────────────────────
@@ -827,11 +897,16 @@ function renderHistory(history) {
   }
   el.innerHTML = '<table class="history-table"><thead><tr><th>Story</th><th>Score</th><th>Stars</th><th>Time</th></tr></thead><tbody>' +
     history.map(r => {
+      const isMath  = r.test_type === 'math';
       const isVoice = r.test_type === 'voice';
       const [hi, mid] = getAgeConfig(activeProfile.age).stars;
-      const stars = isVoice ? '' : r.wpm >= hi ? '⭐⭐⭐' : r.wpm >= mid ? '⭐⭐' : '⭐';
-      const badgeCls = isVoice ? 'badge-blue' : r.wpm >= hi ? 'badge-gold' : r.wpm >= mid ? 'badge-blue' : 'badge-gray';
-      const score = isVoice ? `<span class="badge badge-blue">🎙 ${r.accuracy != null ? r.accuracy + '%' : 'voice'}</span>` : `<span class="badge ${badgeCls}">${r.wpm} WPM</span>`;
+      const stars = (isVoice || isMath) ? '' : r.wpm >= hi ? '⭐⭐⭐' : r.wpm >= mid ? '⭐⭐' : '⭐';
+      const badgeCls = (isVoice || isMath) ? 'badge-blue' : r.wpm >= hi ? 'badge-gold' : r.wpm >= mid ? 'badge-blue' : 'badge-gray';
+      const score = isMath
+        ? `<span class="badge badge-blue">🔢 ${r.wpm ?? '—'} QPM · ${r.accuracy != null ? r.accuracy + '%' : ''}</span>`
+        : isVoice
+        ? `<span class="badge badge-blue">🎙 ${r.accuracy != null ? r.accuracy + '%' : 'voice'}</span>`
+        : `<span class="badge ${badgeCls}">${r.wpm} WPM</span>`;
       const time = new Date(r.created_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
       return `<tr><td>${r.passage_title}</td><td>${score}</td><td>${stars}</td><td style="color:var(--muted)">${time}</td></tr>`;
     }).join('') + '</tbody></table>';
@@ -843,6 +918,163 @@ async function clearHistory() {
     await api('DELETE', `/api/history/${USER_ID}?profileId=${activeProfile.id}`);
     renderHistory([]); showToast('🗑 Scores cleared');
   } catch { showToast('⚠️ Could not clear scores'); }
+}
+
+// ── Math Trainer ──────────────────────────────────────────────────────────
+let mathOp = 'all';
+let mathQuestions = [], mathIdx = 0, mathCorrect = 0;
+let mathRoundStart = null, mathQStart = null, mathQTimes = [];
+let mathTimerInterval = null;
+const MATH_ROUND = 10;
+
+function getMathConfig(age) {
+  // Returns available ops + number ranges [a_min, a_max, b_min, b_max]
+  if (age <= 6)  return { ops:['add'],                  add:[1,10,1,10],      sub:null,             mul:null,          div:null           };
+  if (age <= 8)  return { ops:['add','sub','mul'],       add:[1,20,1,20],      sub:[2,20,1,10],      mul:[1,5,1,5],     div:null           };
+  if (age <= 10) return { ops:['add','sub','mul','div'], add:[1,99,1,99],      sub:[1,99,1,50],      mul:[1,10,1,10],   div:[1,10,1,10]    };
+  if (age <= 12) return { ops:['add','sub','mul','div'], add:[10,99,10,99],    sub:[20,99,10,50],    mul:[1,12,1,12],   div:[1,12,1,12]    };
+  return               { ops:['add','sub','mul','div'], add:[10,999,10,999],  sub:[100,999,50,499], mul:[2,25,2,9],    div:[2,25,1,9]     };
+}
+
+function mathRand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+function generateMathProblem(age, opOverride) {
+  const cfg = getMathConfig(age);
+  const pool = (opOverride === 'all') ? cfg.ops : (cfg.ops.includes(opOverride) ? [opOverride] : [cfg.ops[0]]);
+  const op = pool[Math.floor(Math.random() * pool.length)];
+
+  let a, b, answer, display;
+  if (op === 'add') {
+    const [a1,a2,b1,b2] = cfg.add;
+    a = mathRand(a1,a2); b = mathRand(b1,b2);
+    answer = a + b; display = `${a} + ${b}`;
+  } else if (op === 'sub') {
+    const [a1,a2,b1,b2] = cfg.sub;
+    a = mathRand(a1,a2); b = mathRand(b1,b2);
+    if (b > a) [a,b] = [b,a];
+    answer = a - b; display = `${a} − ${b}`;
+  } else if (op === 'mul') {
+    const [a1,a2,b1,b2] = cfg.mul;
+    a = mathRand(a1,a2); b = mathRand(b1,b2);
+    answer = a * b; display = `${a} × ${b}`;
+  } else {
+    const [,,b1,b2] = cfg.div;
+    b = mathRand(b1, b2);
+    const maxQ = Math.floor(cfg.div[1] / b) || 1;
+    const q = mathRand(1, maxQ);
+    a = b * q; answer = q;
+    display = `${a} ÷ ${b}`;
+  }
+  return { display, answer };
+}
+
+function initMathTab() {
+  const cfg = getMathConfig(activeProfile.age);
+  ['add','sub','mul','div'].forEach(op => {
+    const btn = document.querySelector(`.op-btn[data-op="${op}"]`);
+    if (!btn) return;
+    const ok = cfg.ops.includes(op);
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '0.35';
+    if (!ok && mathOp === op) setOp('all');
+  });
+}
+
+function setOp(op) {
+  mathOp = op;
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.toggle('active', b.dataset.op === op));
+}
+
+function startMath() {
+  mathIdx = 0; mathCorrect = 0; mathQTimes = [];
+  mathQuestions = Array.from({ length: MATH_ROUND }, () => generateMathProblem(activeProfile.age, mathOp));
+  mathRoundStart = Date.now();
+  document.getElementById('math-idle').classList.add('hidden');
+  document.getElementById('math-result-card').classList.add('hidden');
+  document.getElementById('math-playing').classList.remove('hidden');
+  showMathQuestion();
+}
+
+function showMathQuestion() {
+  const q = mathQuestions[mathIdx];
+  document.getElementById('math-problem').textContent = q.display + ' = ?';
+  document.getElementById('math-q-num').textContent = mathIdx + 1;
+  document.getElementById('math-progress').style.width = (mathIdx / MATH_ROUND * 100) + '%';
+  document.getElementById('math-answer').value = '';
+  document.getElementById('math-feedback').textContent = '';
+  document.getElementById('math-timer').textContent = '0.0s';
+  mathQStart = Date.now();
+  clearInterval(mathTimerInterval);
+  mathTimerInterval = setInterval(() => {
+    document.getElementById('math-timer').textContent = ((Date.now() - mathQStart) / 1000).toFixed(1) + 's';
+  }, 100);
+  setTimeout(() => document.getElementById('math-answer').focus(), 50);
+}
+
+function onMathKey(e) { if (e.key === 'Enter') submitMathAnswer(); }
+
+function submitMathAnswer() {
+  const input = document.getElementById('math-answer');
+  const val = parseInt(input.value);
+  if (isNaN(val)) { input.focus(); return; }
+
+  clearInterval(mathTimerInterval);
+  const elapsed = (Date.now() - mathQStart) / 1000;
+  mathQTimes.push(elapsed);
+
+  const correct = val === mathQuestions[mathIdx].answer;
+  if (correct) mathCorrect++;
+
+  const fb = document.getElementById('math-feedback');
+  fb.textContent = correct ? '✓ Correct!' : `✗ Answer: ${mathQuestions[mathIdx].answer}`;
+  fb.className = correct ? 'math-correct' : 'math-wrong';
+
+  mathIdx++;
+  if (mathIdx >= MATH_ROUND) setTimeout(finishMath, 900);
+  else setTimeout(showMathQuestion, 900);
+}
+
+async function finishMath() {
+  clearInterval(mathTimerInterval);
+  document.getElementById('math-playing').classList.add('hidden');
+
+  const totalTime  = (Date.now() - mathRoundStart) / 1000;
+  const avgTime    = mathQTimes.reduce((s,t) => s+t, 0) / mathQTimes.length;
+  const accuracy   = Math.round((mathCorrect / MATH_ROUND) * 100);
+  const qpm        = Math.round((mathCorrect / totalTime) * 60);
+
+  const stars = mathCorrect >= 9 ? '⭐⭐⭐' : mathCorrect >= 7 ? '⭐⭐' : '⭐';
+  const msgs  = {
+    3: ['You are a Math Rocket! 🚀', 'Unbelievable speed and accuracy!'],
+    2: ['Great work! 💪',            'You\'re getting really fast!'],
+    1: ['Keep practising! 📝',       'Every round makes you stronger!']
+  };
+  const [msg, sub] = msgs[stars.length] || msgs[1];
+
+  document.getElementById('math-result-card').classList.remove('hidden');
+  document.getElementById('math-result-correct').textContent = `${mathCorrect} / 10`;
+  document.getElementById('math-result-accuracy').textContent = accuracy + '%';
+  document.getElementById('math-result-avgtime').textContent  = avgTime.toFixed(1) + 's';
+  document.getElementById('math-result-qpm').textContent      = qpm;
+  document.getElementById('math-result-stars').textContent    = stars;
+  document.getElementById('math-result-msg').textContent      = msg;
+
+  const opLabel = { all:'Mixed', add:'Addition', sub:'Subtraction', mul:'Multiplication', div:'Division' }[mathOp];
+  try {
+    await api('POST', '/api/history', {
+      userId: USER_ID, profileId: activeProfile.id,
+      passageTitle: `🔢 Math — ${opLabel}`,
+      wpm: qpm, accuracy, testType: 'math'
+    });
+  } catch {}
+}
+
+function resetMath() {
+  clearInterval(mathTimerInterval);
+  document.getElementById('math-result-card').classList.add('hidden');
+  document.getElementById('math-playing').classList.add('hidden');
+  document.getElementById('math-idle').classList.remove('hidden');
+  document.getElementById('math-feedback').textContent = '';
 }
 
 // ── Start ──────────────────────────────────────────────────────────────────

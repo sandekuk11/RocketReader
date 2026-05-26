@@ -180,7 +180,7 @@ app.post('/api/history', async (req, res) => {
   const { userId, profileId, passageTitle, wpm, accuracy, testType } = req.body;
   if (!userId || !isValidUUID(userId)) return res.status(400).json({ error: 'Valid userId UUID required' });
   if (!passageTitle) return res.status(400).json({ error: 'passageTitle required' });
-  if (!['speed', 'voice'].includes(testType)) return res.status(400).json({ error: 'testType must be speed or voice' });
+  if (!['speed', 'voice', 'math'].includes(testType)) return res.status(400).json({ error: 'testType must be speed, voice, or math' });
 
   const { data, error } = await supabase
     .from('reading_history')
