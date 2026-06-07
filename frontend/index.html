@@ -137,11 +137,42 @@
     .math-wrong { color: #E53935 !important; }
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .toast.show { opacity: 1; }
+    /* ── Chapter Page ── */
+    .chapter-hero { background: linear-gradient(135deg, #0D47A1 0%, #1565C0 45%, #0097A7 100%); border-radius: var(--radius); padding: 32px 20px 28px; text-align: center; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .chapter-hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat; }
+    .chapter-hero-icon { font-size: 56px; margin-bottom: 10px; position: relative; }
+    .chapter-hero-title { font-family: 'Fredoka One', cursive; font-size: 26px; color: #fff; line-height: 1.2; margin-bottom: 8px; position: relative; }
+    .chapter-hero-sub { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.75); letter-spacing: 2px; text-transform: uppercase; position: relative; }
+    .chapter-section { margin-bottom: 12px; }
+    .chapter-section-num { font-size: 10px; font-weight: 800; color: #1565C0; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+    .chapter-section-title { font-family: 'Fredoka One', cursive; font-size: 20px; color: #1565C0; margin-bottom: 10px; }
+    .chapter-text { font-size: 15px; line-height: 1.85; font-weight: 600; color: var(--text); }
+    .chapter-text p { margin-bottom: 10px; }
+    .chapter-text p:last-child { margin-bottom: 0; }
+    .chapter-callout { background: #E3F2FD; border-left: 4px solid #1565C0; border-radius: 0 12px 12px 0; padding: 12px 16px; margin: 12px 0; font-size: 14px; font-weight: 700; color: #1565C0; }
+    .chapter-callout strong { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; opacity: 0.7; }
+    .chapter-formula { background: #1565C0; color: #fff; border-radius: 14px; padding: 16px 20px; text-align: center; margin: 14px 0; }
+    .chapter-formula-eq { font-family: 'Fredoka One', cursive; font-size: 22px; letter-spacing: 2px; margin-bottom: 6px; }
+    .chapter-formula-legend { font-size: 11px; font-weight: 700; opacity: 0.8; line-height: 1.8; }
+    .chapter-fun-fact { background: linear-gradient(135deg, #E8F5E9, #F1F8E9); border-radius: 14px; padding: 14px 16px; margin: 12px 0; display: flex; gap: 12px; align-items: flex-start; }
+    .chapter-fun-icon { font-size: 28px; flex-shrink: 0; }
+    .chapter-fun-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #2E7D32; margin-bottom: 3px; }
+    .chapter-fun-text { font-size: 13px; font-weight: 700; color: #1B5E20; line-height: 1.6; }
+    .chapter-divider { border: none; border-top: 1.5px dashed #D0E4F7; margin: 4px 0 12px; }
+    .chapter-reading-section { margin-top: 4px; }
+    .chapter-age-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .chapter-age-btn { padding: 6px 12px; border-radius: 20px; border: 2px solid #B3D0EE; background: #fff; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; color: #1565C0; transition: all 0.15s; }
+    .chapter-age-btn.active { background: #1565C0; color: #fff; border-color: #1565C0; }
+    .chapter-passage-box { background: #F8FBFF; border: 1.5px solid #D0E4F7; border-radius: 12px; padding: 16px; font-size: 16px; line-height: 1.9; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+    .laminar-stream { display: flex; justify-content: center; align-items: center; margin: 16px 0; height: 60px; gap: 3px; }
+    .laminar-drop { width: 4px; border-radius: 4px; background: linear-gradient(180deg, #42A5F5, #0D47A1); animation: flow 1.8s ease-in-out infinite; }
+    @keyframes flow { 0%,100%{height:8px;opacity:0.4} 50%{height:48px;opacity:1} }
     @media (max-width: 480px) {
       .header h1 { font-size: 27px; }
       .passage-text { font-size: 15px; }
       .wpm-number { font-size: 54px; }
       .tab { font-size: 11px; }
+      .chapter-hero-title { font-size: 21px; }
     }
   </style>
 </head>
@@ -204,6 +235,7 @@
     <button class="tab" onclick="switchTab('voice')">🎙 Voice</button>
     <button class="tab" onclick="switchTab('flash')">⚡ Flash</button>
     <button class="tab" onclick="switchTab('math')">🔢 Math</button>
+    <button class="tab" onclick="switchTab('chapters')">📖 Learn</button>
     <button class="tab" onclick="switchTab('history')">🏆 Scores</button>
   </div>
 
@@ -366,6 +398,140 @@
         <button class="btn btn-primary" onclick="switchTab('history')">📊 See Scores</button>
       </div>
     </div>
+  </div>
+
+  <!-- CHAPTERS -->
+  <div id="tab-chapters" class="hidden">
+
+    <div class="chapter-hero">
+      <div class="chapter-hero-icon">🌊</div>
+      <div class="chapter-hero-title">The Magic of<br>Laminar Flow Fountains</div>
+      <div class="chapter-hero-sub">Science Spotlight · Special Chapter</div>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 1</div>
+      <div class="chapter-section-title">✨ The Glass Water Illusion</div>
+      <div class="chapter-text">
+        <p>When you first see a laminar flow fountain, you might think someone froze water in mid-air. The stream looks solid — like a rod of crystal glass arching smoothly from the nozzle to a pool below. You can put your hand right through it and feel ordinary water, yet somehow it looks magical, almost invisible.</p>
+        <p>This is not a trick or a special effect. It is pure physics. Water can flow in two very different ways, and laminar flow fountains are carefully designed to trigger the rarest, most beautiful one.</p>
+      </div>
+      <div class="laminar-stream" aria-hidden="true">
+        <div class="laminar-drop" style="animation-delay:0s"></div>
+        <div class="laminar-drop" style="animation-delay:0.15s"></div>
+        <div class="laminar-drop" style="animation-delay:0.3s"></div>
+        <div class="laminar-drop" style="animation-delay:0.45s"></div>
+        <div class="laminar-drop" style="animation-delay:0.6s"></div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 2</div>
+      <div class="chapter-section-title">💧 Laminar vs Turbulent Flow</div>
+      <div class="chapter-text">
+        <p>Water can move in two fundamentally different ways. In <strong>turbulent flow</strong> — like a crashing waterfall or water rushing through a garden hose at full blast — molecules move chaotically, spinning and mixing in all directions. The surface is rough, bubbly, and white.</p>
+        <p>In <strong>laminar flow</strong>, water moves in smooth, parallel layers that slide past each other without mixing at all. "Laminar" comes from the Latin word <em>lamina</em>, meaning a thin sheet or layer. Because every layer of water follows the exact same orderly path, the stream's surface is perfectly smooth. Light passes through it uniformly, making it look transparent — like glass.</p>
+      </div>
+      <div class="chapter-callout">
+        <strong>Key Idea</strong>
+        Laminar = smooth, glassy, layered. Turbulent = chaotic, rough, mixing. A laminar flow fountain keeps water in that smooth, glassy state all the way from nozzle to landing.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 3</div>
+      <div class="chapter-section-title">🔢 The Reynolds Number</div>
+      <div class="chapter-text">
+        <p>In 1883, Irish physicist <strong>Osborne Reynolds</strong> discovered a single number that predicts whether any fluid flow will be laminar or turbulent. It is now called the <strong>Reynolds number (Re)</strong>, and it compares two opposing forces inside the fluid: the momentum pushing it forward versus the viscosity (internal stickiness) resisting chaotic mixing.</p>
+      </div>
+      <div class="chapter-formula">
+        <div class="chapter-formula-eq">Re = (ρ × v × D) ÷ μ</div>
+        <div class="chapter-formula-legend">
+          ρ = fluid density (kg/m³) &nbsp;·&nbsp; v = velocity (m/s)<br>
+          D = pipe/nozzle diameter (m) &nbsp;·&nbsp; μ = dynamic viscosity (Pa·s)
+        </div>
+      </div>
+      <div class="chapter-text">
+        <p>When <strong>Re &lt; 2,300</strong>, flow is laminar. Above <strong>4,000</strong>, it is fully turbulent. Between those values is a transitional zone. Laminar flow fountains are engineered to keep Re far below 2,300 — typically around 200–800 — by using a very wide, slow-moving stream and cool, clean water.</p>
+      </div>
+      <div class="chapter-fun-fact">
+        <div class="chapter-fun-icon">🧪</div>
+        <div>
+          <div class="chapter-fun-title">Fun Fact</div>
+          <div class="chapter-fun-text">Reynolds demonstrated his discovery by injecting a thin line of colored dye into a pipe of flowing water. In laminar flow the dye stayed as a perfect straight line. When flow turned turbulent, the dye instantly scattered into a swirling cloud. You can try this at home with a glass of still water and a drop of food coloring!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 4</div>
+      <div class="chapter-section-title">🔧 Building the Fountain</div>
+      <div class="chapter-text">
+        <p>Creating a laminar flow fountain requires solving three engineering challenges at once:</p>
+        <p><strong>1. The Nozzle</strong> — The nozzle must be a long, smooth tube with no sharp edges, bends, or rough spots. Any imperfection creates tiny turbulent eddies that grow and destroy the laminar stream. The tube is often lined with drinking straws bundled together, which act as a "flow straightener," aligning every water molecule in the same direction before it exits.</p>
+        <p><strong>2. Steady Pressure</strong> — Even a small pulse from the pump will cause ripples. Professional fountains use a wide settling chamber packed with foam or mesh before the nozzle, calming the water completely. Some use a constant-head tank (an overflow reservoir) instead of a pump, so pressure never fluctuates.</p>
+        <p><strong>3. Clean, Cool Water</strong> — Warmer water has lower viscosity, which raises the Reynolds number. Particles or air bubbles create nucleation points where turbulence starts. Filtered, cool water stays laminar much more easily.</p>
+      </div>
+      <div class="chapter-callout">
+        <strong>Engineer's Rule of Thumb</strong>
+        The nozzle tube should be at least 50× longer than its internal diameter. This lets turbulence from the pump fully die out before the water exits.
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 5</div>
+      <div class="chapter-section-title">💡 Light Inside the Water</div>
+      <div class="chapter-text">
+        <p>The most dazzling trick with laminar flow fountains uses light. Because the stream is so perfectly smooth, a beam of light aimed directly into the back of the nozzle travels the entire arc of the stream by <strong>total internal reflection</strong> — the same physics principle that guides light through a fiber optic cable.</p>
+        <p>The water stream acts as its own fiber optic cable. Change the LED to red, and the stream glows red. Cycle through colors and the stream transforms into arcs of living light. At night, these fountains look like solid neon tubes floating through the air.</p>
+        <p>This effect only works because laminar flow keeps the surface smooth enough to reflect light internally. A turbulent stream scatters light in every direction and the effect vanishes immediately.</p>
+      </div>
+      <div class="chapter-fun-fact">
+        <div class="chapter-fun-icon">🌈</div>
+        <div>
+          <div class="chapter-fun-title">Walt Disney's Secret</div>
+          <div class="chapter-fun-text">Laminar flow fountains were first popularized at Disneyland in the 1980s. The Imagineers used them to create glowing colored water arcs between rocks in the Tomorrowland area. Guests were amazed — many tried to find the hidden colored tubes, not realizing the light was traveling inside the water itself.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="card chapter-section">
+      <div class="chapter-section-num">Section 6</div>
+      <div class="chapter-section-title">🌍 Laminar Flow in the Real World</div>
+      <div class="chapter-text">
+        <p>Laminar flow is not just a fountain trick — it is one of the most important concepts in science and engineering:</p>
+        <p><strong>Your Blood</strong> — Blood flows laminarly through the tiny capillaries in your body. If it were turbulent, the forces would tear fragile capillary walls apart. Your heart carefully controls flow rate to keep blood in the laminar regime in small vessels.</p>
+        <p><strong>Aircraft Wings</strong> — Aeronautical engineers design wing profiles to keep airflow laminar as long as possible. Turbulent airflow creates much more drag, burning extra fuel. A wing with laminar flow uses significantly less energy to produce lift.</p>
+        <p><strong>Lab-on-a-Chip</strong> — Microfluidic chips used in medical diagnostics are so tiny that flow is always laminar. This is actually useful: scientists can control exactly where two liquids meet and mix, performing reactions with nanolitre volumes of blood or medicine.</p>
+        <p><strong>Your Kitchen</strong> — Honey, maple syrup, and olive oil all pour in laminar streams because they are viscous — their high μ keeps Re very low. Even ketchup flows laminarly, which is why it is so predictable once it starts moving.</p>
+      </div>
+    </div>
+
+    <!-- Practice Reading Section -->
+    <hr class="chapter-divider" />
+    <div class="card chapter-reading-section">
+      <div class="section-title">📖 Practice Reading This Chapter</div>
+      <p style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;line-height:1.6;">Choose a reading level to see an age-appropriate version of this chapter. Then use it in Speed or Voice tabs for practice!</p>
+      <div class="chapter-age-tabs">
+        <button class="chapter-age-btn active" onclick="setChapterLevel('beginner')">Ages 4–6</button>
+        <button class="chapter-age-btn" onclick="setChapterLevel('early')">Ages 7–8</button>
+        <button class="chapter-age-btn" onclick="setChapterLevel('middle')">Ages 9–10</button>
+        <button class="chapter-age-btn" onclick="setChapterLevel('upper')">Ages 11–12</button>
+        <button class="chapter-age-btn" onclick="setChapterLevel('advanced')">Ages 13+</button>
+      </div>
+      <div class="chapter-passage-box" id="chapter-level-text"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-sm" onclick="useChapterInSpeed()">⏱ Practice in Speed Tab</button>
+        <button class="btn btn-green btn-sm" onclick="useChapterInVoice()">🎙 Read Aloud in Voice Tab</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- HISTORY -->
@@ -657,14 +823,72 @@ function buildSelector(id, cb) {
 function highlightSelector(id) {
   document.querySelectorAll('#' + id + ' .passage-btn').forEach((b, i) => b.classList.toggle('active', i === currentPassageIdx));
 }
+// ── Chapter: Laminar Flow Fountain ────────────────────────────────────────
+const CHAPTER_LAMINAR = {
+  title: '🌊 Laminar Flow Fountain',
+  levels: {
+    beginner: 'Water can flow in two ways. Sometimes it is fast and bubbly and goes everywhere. That is called turbulent. But sometimes water flows very smoothly, all in the same direction. That is called laminar flow. In a laminar fountain the water looks like a clear glass rod flying through the air. It is not magic — it is science!',
+    early:    'Have you ever seen water that looks like solid glass flying through the air? That is a laminar flow fountain. Water can flow in two ways: turbulent — bubbly and chaotic — or laminar — smooth and glassy. In a laminar fountain, water flows out of a specially shaped nozzle very slowly and steadily. Every drop follows the same smooth path, so the stream looks completely clear and solid. Shine a light into it and the whole stream glows like a fiber optic cable!',
+    middle:   'A laminar flow fountain produces a stream so smooth and glassy it looks like solid crystal. The secret lies in how water molecules move. In turbulent flow molecules mix chaotically, creating a rough, bubbly surface. In laminar flow they move in perfect parallel layers with no mixing at all. Whether flow is laminar or turbulent depends on the Reynolds number — a value calculated from the water\'s speed, the nozzle diameter, and the water\'s viscosity. When the Reynolds number stays below about 2,300, flow is laminar. Fountain builders use long smooth nozzles, very low pressure, and clean cool water to keep the Reynolds number low. They can also aim a light beam into the nozzle, and it travels the entire glowing arc by total internal reflection — exactly like a fiber optic cable.',
+    upper:    'Laminar flow fountains exploit one of fluid dynamics\' most elegant principles. Water normally flows turbulently — molecules move chaotically, scattering light and creating a rough, white surface. But when the Reynolds number (Re = ρvD/μ, where ρ is density, v is velocity, D is nozzle diameter, and μ is viscosity) falls below approximately 2,300, flow becomes laminar: molecules travel in smooth parallel layers with zero cross-stream mixing. The stream\'s surface is so optically smooth that light undergoes total internal reflection along its entire arc, making the water glow from within like a fiber optic cable. Achieving this requires a precisely machined nozzle lined with flow-straightening tubes, a settling chamber to eliminate pump turbulence, and steady low pressure. The same laminar-flow physics governs blood moving through your capillaries, airflow over a well-designed wing, and fluids inside microfluidic diagnostic chips.',
+    advanced: 'The laminar flow fountain is a visible demonstration of one of fluid mechanics\' most important dimensionless parameters: the Reynolds number. Defined as Re = ρvL/μ — the ratio of inertial to viscous forces — it predicts the onset of turbulence. For pipe flow, the laminar-to-turbulent transition occurs between Re ≈ 2,300 and Re ≈ 4,000, a range first mapped experimentally by Osborne Reynolds in his landmark 1883 pipe-flow experiments. A laminar fountain maintains Re well below 2,300 by combining a large-diameter nozzle (maximising D while minimising v), cool filtered water (maximising μ), and a honeycomb flow-straightener that destroys any residual angular momentum from the pump. The resulting stream exhibits total internal reflection: light entering the nozzle is trapped by the refractive index mismatch between water (n ≈ 1.33) and air (n = 1.00), propagating the full parabolic arc. This is identical to the guiding mechanism in silica fiber optics. The same Reynolds-number framework governs laminar flow in arterioles, the laminar sublayer on turbine blades, and electroosmotic flow in microfluidic lab-on-chip devices — making the fountain a beautifully tangible entry point into one of engineering\'s most broadly applicable theories.'
+  }
+};
+
+let chapterLevel = 'beginner';
+
+function initChapterTab() {
+  const age = activeProfile?.age || 8;
+  if      (age <= 6)  chapterLevel = 'beginner';
+  else if (age <= 8)  chapterLevel = 'early';
+  else if (age <= 10) chapterLevel = 'middle';
+  else if (age <= 12) chapterLevel = 'upper';
+  else                chapterLevel = 'advanced';
+  renderChapterLevel();
+}
+
+function setChapterLevel(level) {
+  chapterLevel = level;
+  renderChapterLevel();
+  document.querySelectorAll('.chapter-age-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(level.replace('beginner','4').replace('early','7').replace('middle','9').replace('upper','11').replace('advanced','13'))));
+}
+
+function renderChapterLevel() {
+  document.getElementById('chapter-level-text').textContent = CHAPTER_LAMINAR.levels[chapterLevel];
+  const labels = { beginner:'Ages 4–6', early:'Ages 7–8', middle:'Ages 9–10', upper:'Ages 11–12', advanced:'Ages 13+' };
+  document.querySelectorAll('.chapter-age-btn').forEach(b => b.classList.toggle('active', b.textContent === labels[chapterLevel]));
+}
+
+function useChapterInSpeed() {
+  const p = { title: CHAPTER_LAMINAR.title, text: CHAPTER_LAMINAR.levels[chapterLevel] };
+  PASSAGES.unshift(p);
+  currentPassageIdx = 0;
+  switchTab('speed');
+  buildSelector('passage-selector', idx => { currentPassageIdx = idx; renderPassage(); });
+  renderPassage();
+  showToast('🌊 Laminar Flow chapter loaded in Speed tab!');
+}
+
+function useChapterInVoice() {
+  const p = { title: CHAPTER_LAMINAR.title, text: CHAPTER_LAMINAR.levels[chapterLevel] };
+  PASSAGES.unshift(p);
+  currentPassageIdx = 0;
+  switchTab('voice');
+  buildSelector('voice-passage-selector', renderVoicePassage);
+  renderVoicePassage();
+  showToast('🌊 Laminar Flow chapter loaded in Voice tab!');
+}
+
 function switchTab(tab) {
-  ['speed','voice','flash','math','history'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
-  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ['speed','voice','flash','math','history'][i] === tab));
+  const ALL_TABS = ['speed','voice','flash','math','chapters','history'];
+  ALL_TABS.forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ALL_TABS[i] === tab));
   track('tab_view', { tab_name: tab, profile_age: activeProfile?.age, age_group: activeProfile ? levelLabel(activeProfile.age) : null });
-  if (tab === 'history') loadHistory();
-  if (tab === 'flash')   { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
-  if (tab === 'voice')   { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
-  if (tab === 'math')    initMathTab();
+  if (tab === 'history')  loadHistory();
+  if (tab === 'flash')    { buildSelector('flash-passage-selector', initFlashPassage); initFlashPassage(); }
+  if (tab === 'voice')    { buildSelector('voice-passage-selector', renderVoicePassage); renderVoicePassage(); }
+  if (tab === 'math')     initMathTab();
+  if (tab === 'chapters') initChapterTab();
 }
 
 // ── Speed Test ─────────────────────────────────────────────────────────────
